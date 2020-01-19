@@ -5,8 +5,11 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-
-int keyPos = 0;
+extern "C" {
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
+}
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -23,6 +26,21 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 const uint32_t width = 800;
 const uint32_t height = 600;
+
+static int lua_print(lua_State* L) {
+	int nargs = lua_gettop(L);
+	for (int i = 1; i <= nargs; ++i) {
+		std::cout << lua_tostring(L, i);
+	}
+	std::cout << std::endl;
+
+	return 0;
+}
+
+static const struct luaL_Reg printlib[] = {
+  {"print", lua_print},
+  {NULL, NULL}
+};
 
 int main()
 {
@@ -76,14 +94,23 @@ int main()
 	ImGuiTextBuffer log;
 	glfwSetWindowUserPointer(window, &log);
 
-	static char text[1024 * 16] = "def flip_the_dots(x, y, time): \n"
-		"	pass";
+	lua_State* lua = luaL_newstate();
+	luaL_openlibs(lua);
+	lua_getglobal(lua, "_G");
+	luaL_setfuncs(lua, printlib, 0);
+	lua_pop(lua, 1);
+
+	static char text[1024 * 16] = "function hello() \n"
+		"	print(\"Hello World\") \n"
+		"end \n\n"
+		"hello()";
 	
+	luaL_dostring(lua, text);
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-	
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -106,6 +133,9 @@ int main()
 
         glfwSwapBuffers(window);
     }
+
+	// Clean-up lua
+	lua_close(lua);
 
     // Clean-up imgui
     ImGui_ImplOpenGL3_Shutdown();

@@ -19,23 +19,26 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/glfw/include/GLFW")
 include_directories("${PROJECT_SOURCE_DIR}/external/imgui/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/glad/include")
+include_directories("${PROJECT_SOURCE_DIR}/external/lua/include")
 file(GLOB PROJECT_HEADERS "include/*.h")
 
 # include source files
 file(GLOB PROJECT_SOURCES "src/*.cpp")
 file(GLOB IMGUI_SOURCES "external/imgui/src/*.cpp")
 file(GLOB GLAD_SOURCES "external/glad/src/*.c")
+file(GLOB LUA_SOURCES "external/lua/src/*.c")
 
 # group files in IDE
 source_group("include" FILES ${PROJECT_HEADERS})
 source_group("src" FILES ${PROJECT_SOURCES})
-source_group("external" FILES ${IMGUI_SOURCES} ${GLAD_SOURCES})
+source_group("external" FILES ${IMGUI_SOURCES} ${GLAD_SOURCES} ${LUA_SOURCES})
 
 # create the executable
 add_executable(Dot ${PROJECT_SOURCES}
 					${PROJECT_HEADERS} # if not included here, it won't show up in the IDE?
 					${IMGUI_SOURCES}
-					${GLAD_SOURCES})
+					${GLAD_SOURCES}
+					${LUA_SOURCES})
 
 # add libraries
 target_link_libraries(Dot glfw ${GLFW_LIBRARIES})
