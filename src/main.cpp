@@ -83,8 +83,13 @@ int main()
 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_Button] = ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
 	style.WindowRounding = 0;
 	style.WindowBorderSize = 0;
+	style.ScrollbarRounding = 0;
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
@@ -100,13 +105,16 @@ int main()
 	luaL_setfuncs(lua, printlib, 0);
 	lua_pop(lua, 1);
 
-	static char text[1024 * 16] = "function hello() \n"
-		"	print(\"Hello World\") \n"
-		"end \n\n"
-		"hello()";
+	static char text[1024 * 16] = "function all_whites()\n"
+		"	return 1 \n"
+		"end\n\n"
+		"function all_blacks()\n"
+		"	return 0\n"
+		"end\n\n"
+		"function main(x, y, frame)\n"
+		"	return all_whites()\n"
+		"end";
 	
-	luaL_dostring(lua, text);
-
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -116,10 +124,19 @@ int main()
         ImGui::NewFrame();
         {
 			ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always, ImVec2(0, 0));
-			ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(400, 500), ImGuiCond_Always);
             ImGui::Begin("TextEdit", NULL, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoCollapse);
 			
 			ImGui::InputTextMultiline("", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, 450), ImGuiInputTextFlags_AllowTabInput);
+			ImGui::End();
+
+			ImGui::SetNextWindowPos(ImVec2(0, 500), ImGuiCond_Always, ImVec2(0, 0));
+			ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Always);
+			ImGui::Begin("Compile", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+			if (ImGui::Button("Execute"))
+			{
+				luaL_dostring(lua, text);
+			}
 			ImGui::End();
         }
 
