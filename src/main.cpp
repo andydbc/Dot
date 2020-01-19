@@ -14,19 +14,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
-	else
-	{
-		if (action == GLFW_PRESS)
-		{
-			ImGuiTextBuffer* log;
-			log = (ImGuiTextBuffer*)glfwGetWindowUserPointer(window);
-
-			if(key == GLFW_KEY_SPACE)
-				log->appendf("\n");
-			else
-				log->appendf(glfwGetKeyName(key, scancode));
-		}
-	}
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -55,7 +42,7 @@ int main()
     }
 
     glfwMakeContextCurrent(window);
-	//glfwSetKeyCallback(window, key_callback);
+	glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Load function pointers from GLAD
