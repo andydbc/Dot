@@ -1,15 +1,24 @@
 #include <iostream>
+#include <vector>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+
 extern "C" {
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
 }
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+#include "serial/serial.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -42,8 +51,24 @@ static const struct luaL_Reg printlib[] = {
   {NULL, NULL}
 };
 
+void enumerate_ports()
+{
+	std::vector<serial::PortInfo> devices_found = serial::list_ports();
+
+	std::vector<serial::PortInfo>::iterator iter = devices_found.begin();
+
+	while (iter != devices_found.end())
+	{
+		serial::PortInfo device = *iter++;
+
+		printf("(%s, %s, %s)\n", device.port.c_str(), device.description.c_str(),
+			device.hardware_id.c_str());
+	}
+}
+
 int main()
 {
+	enumerate_ports();
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
