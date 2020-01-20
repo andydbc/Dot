@@ -74,15 +74,15 @@ int main()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImFont* pFont = io.Fonts->AddFontFromFileTTF("resources/input_mono_regular.ttf", 18.0f);
+	ImFont* pFont = io.Fonts->AddFontFromFileTTF("resources/input_mono_medium.ttf", 20.0f);
 
 	io.ConfigInputTextCursorBlink = true;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
 	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
 	style.Colors[ImGuiCol_Button] = ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
 	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
@@ -94,7 +94,7 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+    ImVec4 clear_color = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
 
 	ImGuiTextBuffer log;
 	glfwSetWindowUserPointer(window, &log);
@@ -105,7 +105,8 @@ int main()
 	luaL_setfuncs(lua, printlib, 0);
 	lua_pop(lua, 1);
 
-	static char text[1024 * 16] = "function all_whites()\n"
+	static char text[1024 * 16] = "-- welcome to Dot - v0.1 \n\n"
+		"function all_whites()\n"
 		"	return 1 \n"
 		"end\n\n"
 		"function all_blacks()\n"
@@ -123,14 +124,14 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         {
-			ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always, ImVec2(0, 0));
-			ImGui::SetNextWindowSize(ImVec2(400, 500), ImGuiCond_Always);
+			ImGui::SetNextWindowPos(ImVec2(35, 35), ImGuiCond_Always, ImVec2(0, 0));
+			ImGui::SetNextWindowSize(ImVec2(400, 465), ImGuiCond_Always);
             ImGui::Begin("TextEdit", NULL, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoCollapse);
 			
-			ImGui::InputTextMultiline("", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, 450), ImGuiInputTextFlags_AllowTabInput);
+			ImGui::InputTextMultiline("", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, 420), ImGuiInputTextFlags_AllowTabInput);
 			ImGui::End();
 
-			ImGui::SetNextWindowPos(ImVec2(0, 500), ImGuiCond_Always, ImVec2(0, 0));
+			ImGui::SetNextWindowPos(ImVec2(35, 500), ImGuiCond_Always, ImVec2(0, 0));
 			ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Always);
 			ImGui::Begin("Compile", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 			if (ImGui::Button("Execute"))
