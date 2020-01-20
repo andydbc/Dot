@@ -53,16 +53,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void apply_custom_style()
 {
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
-	style.Colors[ImGuiCol_Button] = ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
-	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
-	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
-	style.WindowRounding = 0;
-	style.WindowBorderSize = 0;
-	style.ScrollbarRounding = 0;
+	style.Colors[ImGuiCol_WindowBg]			= ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_ChildBg]			= ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_FrameBg]			= ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_TextSelectedBg]	= ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+	style.Colors[ImGuiCol_Button]			= ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
+	style.Colors[ImGuiCol_ButtonHovered]	= ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
+	style.Colors[ImGuiCol_ButtonActive]		= ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
+	style.WindowRounding					= 0;
+	style.WindowBorderSize					= 0;
+	style.ScrollbarRounding					= 0;
 }
 
 int frame = 0;
@@ -70,7 +70,7 @@ float period = 0.0f;
 float prev_time = 0.0f;
 char buffer[1024 * 16] = "\0";
 
-void update_pixels(lua_State* lua, std::vector<std::vector<int>>& pixels)
+void update_pixels(lua_State* lua, std::vector<int>& pixels)
 {
 	if (period >= 0.1f)
 	{
@@ -81,10 +81,10 @@ void update_pixels(lua_State* lua, std::vector<std::vector<int>>& pixels)
 				static char call[155];
 				sprintf(call, "return main(%d, %d, %d)", i, j, frame);
 
-				luaL_dostring(lua, buffer);
 				luaL_dostring(lua, call);
 				int enabled = lua_tointeger(lua, -1);
-				pixels[i][j] = enabled;
+				pixels[i + (pixel_rows * j)] = enabled;
+				
 			}
 		}
 
@@ -139,7 +139,7 @@ int main()
 	luaL_setfuncs(lua, printlib, 0);
 	lua_pop(lua, 1);
 
-	std::vector<std::vector<int>> pixels(pixel_rows, std::vector<int>(pixel_columns, 0));
+	std::vector<int> pixels(pixel_rows * pixel_columns);
 
 	static char text[1024 * 16] = "-- welcome to Dot - v0.1 \n\n"
 		"function all_whites()\n"
@@ -152,7 +152,8 @@ int main()
 		"	return all_whites()\n"
 		"end";
 	
-	memcpy(buffer, text, sizeof(char) * 1024 * 16);
+	memcpy(buffer, text, sizeof(char)*1024*16);
+	luaL_dostring(lua, buffer);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -183,6 +184,7 @@ int main()
 				if (ImGui::Button("Execute"))
 				{
 					memcpy(buffer, text, sizeof(char) * 1024 * 16);
+					luaL_dostring(lua, buffer);
 				}
 				ImGui::End();
 			}
@@ -209,7 +211,7 @@ int main()
 					{
 						float x = (wp.x + dradius) + i * (dradius + padding) + ws.x * 0.5f - width * 0.5f;
 						float y = (wp.y + dradius) + j * (dradius + padding) + ws.y * 0.5f - height * 0.5f;
-						draw_list->AddCircleFilled(ImVec2(x, y), radius, pixels[i][j] ? white : black, 64);
+						draw_list->AddCircleFilled(ImVec2(x, y), radius, pixels[i + (pixel_rows * j)] ? white : black, 64);
 					}
 				}
 
