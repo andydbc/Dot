@@ -27,7 +27,8 @@ const uint32_t pixel_columns = 28;
 const ImU32 black = ImColor(ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
 const ImU32 white = ImColor(ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
 
-static int lua_print(lua_State* L) {
+static int lua_print(lua_State* L) 
+{
 	int nargs = lua_gettop(L);
 	for (int i = 1; i <= nargs; ++i) {
 		std::cout << lua_tostring(L, i);
@@ -35,6 +36,11 @@ static int lua_print(lua_State* L) {
 	std::cout << std::endl;
 
 	return 0;
+}
+
+static void error(const std::string &error)
+{
+	std::cout << "Error " << error << std::endl;
 }
 
 static const struct luaL_Reg printlib[] = {
@@ -74,16 +80,28 @@ void update_pixels(lua_State* lua, std::vector<int>& pixels)
 {
 	if (period >= 0.1f)
 	{
-		for (int j = 0; j < pixel_columns; ++j)
+		for (uint32_t j = 0; j < pixel_columns; ++j)
 		{
-			for (int i = 0; i < pixel_rows; ++i)
+			for (uint32_t i = 0; i < pixel_rows; ++i)
 			{
-				static char call[155];
-				sprintf(call, "return main(%d, %d, %d)", i, j, frame);
+				lua_getglobal(lua, "main");
+				lua_pushinteger(lua, i);
+				lua_pushinteger(lua, j);
+				lua_pushinteger(lua, frame);
 
-				luaL_dostring(lua, call);
-				int enabled = lua_tointeger(lua, -1);
-				pixels[i + (pixel_rows * j)] = enabled;
+				if (lua_pcall(lua, 3, 1, 0) != 0)
+				{
+					std::string message = std::string("error running function 'f': %s", lua_tostring(lua, -1));
+					error(message);
+				}
+
+				if (!lua_isinteger(lua, -1))
+					error("function 'main' must return an integer");
+				int pixel = lua_tointeger(lua, -1);
+				lua_pop(lua, 1);
+
+				int index = i+pixel_rows*j;
+				pixels[index] = pixel;
 				
 			}
 		}
@@ -148,7 +166,7 @@ int main()
 		"function all_blacks()\n"
 		"	return 0\n"
 		"end\n\n"
-		"function main(x, y, frame, count)\n"
+		"function main(x, y, frame)\n"
 		"	return all_whites()\n"
 		"end";
 	
@@ -184,7 +202,11 @@ int main()
 				if (ImGui::Button("Execute"))
 				{
 					memcpy(buffer, text, sizeof(char) * 1024 * 16);
-					luaL_dostring(lua, buffer);
+					int err = luaL_dostring(lua, buffer);
+					if (err != 0)
+					{
+						std::cout << lua_tostring(lua, -1) << std::endl;
+					}
 				}
 				ImGui::End();
 			}
@@ -205,13 +227,14 @@ int main()
 				ImVec2 ws = ImGui::GetWindowSize();
 				ImVec2 wc = ImVec2(wp.x + ws.x * 0.5f, wp.y + ws.y * 0.5f);
 
-				for (int j = 0; j < pixel_columns; ++j)
+				for (uint32_t j = 0; j < pixel_columns; ++j)
 				{
-					for (int i = 0; i < pixel_rows; ++i)
+					for (uint32_t i = 0; i < pixel_rows; ++i)
 					{
 						float x = (wp.x + dradius) + i * (dradius + padding) + ws.x * 0.5f - width * 0.5f;
 						float y = (wp.y + dradius) + j * (dradius + padding) + ws.y * 0.5f - height * 0.5f;
-						draw_list->AddCircleFilled(ImVec2(x, y), radius, pixels[i + (pixel_rows * j)] ? white : black, 64);
+						int pixelColor = pixels[i + pixel_rows*j] ? white : black;
+						draw_list->AddCircleFilled(ImVec2(x, y), radius, pixelColor, 64);
 					}
 				}
 
