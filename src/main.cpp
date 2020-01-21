@@ -38,11 +38,6 @@ static int lua_print(lua_State* L)
 	return 0;
 }
 
-static void error(const std::string &error)
-{
-	std::cout << "Error " << error << std::endl;
-}
-
 static const struct luaL_Reg printlib[] = {
   {"print", lua_print},
   {NULL, NULL}
@@ -75,10 +70,11 @@ int frame = 0;
 float period = 0.0f;
 float prev_time = 0.0f;
 char buffer[1024 * 16] = "\0";
+bool error = false;
 
 void update_pixels(lua_State* lua, std::vector<int>& pixels)
 {
-	if (period >= 0.1f)
+	if (period >= 0.1f && !error)
 	{
 		for (uint32_t j = 0; j < pixel_columns; ++j)
 		{
@@ -92,17 +88,19 @@ void update_pixels(lua_State* lua, std::vector<int>& pixels)
 				if (lua_pcall(lua, 3, 1, 0) != 0)
 				{
 					std::string message = std::string("error running function 'f': %s", lua_tostring(lua, -1));
-					error(message);
+					std::cout << message << std::endl;
+					error = true;
 				}
 
-				if (!lua_isinteger(lua, -1))
-					error("function 'main' must return an integer");
-				int pixel = lua_tointeger(lua, -1);
-				lua_pop(lua, 1);
+				int index = i + pixel_rows * j;
+				pixels[index] = 0;
 
-				int index = i+pixel_rows*j;
-				pixels[index] = pixel;
-				
+				if (lua_isinteger(lua, -1))
+				{
+					int pixel = lua_tointeger(lua, -1);
+					lua_pop(lua, 1);
+					pixels[index] = pixel;
+				}
 			}
 		}
 
@@ -206,6 +204,11 @@ int main()
 					if (err != 0)
 					{
 						std::cout << lua_tostring(lua, -1) << std::endl;
+						error = true;
+					}
+					else
+					{
+						error = false;
 					}
 				}
 				ImGui::End();
