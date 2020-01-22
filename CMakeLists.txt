@@ -21,6 +21,7 @@ include_directories("${PROJECT_SOURCE_DIR}/external/imgui/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/glad/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/lua/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/serial/include")
+include_directories("${PROJECT_SOURCE_DIR}/external/sfd/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/glm/glm")
 file(GLOB PROJECT_HEADERS "include/*.h")
 
@@ -30,6 +31,7 @@ file(GLOB IMGUI_SOURCES "external/imgui/src/*.cpp")
 file(GLOB GLAD_SOURCES "external/glad/src/*.c")
 file(GLOB LUA_SOURCES "external/lua/src/*.c")
 file(GLOB SERIAL_SOURCES "external/serial/src/*.cc")
+file(GLOB SFD_SOURCES "external/sfd/src/*.c")
 
 if(UNIX)
     # If unix
@@ -44,7 +46,7 @@ endif()
 # group files in IDE
 source_group("include" FILES ${PROJECT_HEADERS})
 source_group("src" FILES ${PROJECT_SOURCES})
-source_group("external" FILES ${IMGUI_SOURCES} ${GLAD_SOURCES} ${LUA_SOURCES} ${SERIAL_SOURCES})
+source_group("external" FILES ${IMGUI_SOURCES} ${GLAD_SOURCES} ${LUA_SOURCES} ${SERIAL_SOURCES} ${SFD_SOURCES})
 
 # create the executable
 add_executable(Dot ${PROJECT_SOURCES}
@@ -52,7 +54,8 @@ add_executable(Dot ${PROJECT_SOURCES}
 					${IMGUI_SOURCES}
 					${GLAD_SOURCES}
 					${LUA_SOURCES}
-					${SERIAL_SOURCES})
+					${SERIAL_SOURCES}
+					${SFD_SOURCES})
 
 # add libraries
 
