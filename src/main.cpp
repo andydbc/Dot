@@ -111,7 +111,26 @@ void update_pixels(lua_State* lua, std::vector<int>& pixels)
 
 int main()
 {
-	glfwInit();
+	serial::Serial usbSerial("/dev/ttyUSB0", 9600, serial::Timeout::simpleTimeout(1000));
+	if (usbSerial.isOpen())
+	{
+		std::cout << "Serial Connected" << std::endl;
+		unsigned char all_white[32] =
+		{
+			0x80,
+			0x83,
+			0x01,
+			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+			0x8F
+		};
+
+		usbSerial.write(&all_white[0], 32);
+	}
+
+	/*glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -181,6 +200,7 @@ int main()
 		period += dt;
 		update_pixels(lua, pixels);
 
+		//////
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -211,6 +231,10 @@ int main()
 						error = false;
 					}
 				}
+
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+				ImGui::LabelText("", "Untitled");
+				ImGui::PopStyleColor();
 				ImGui::End();
 			}
 			
@@ -269,7 +293,7 @@ int main()
 	   
 	// Clean-up GLFW
 	glfwDestroyWindow(window);
-	glfwTerminate();
+	glfwTerminate();*/
 
 	return 0;
 }
