@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 
+#include "cxxopts.hpp"
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "imgui.h"
@@ -175,8 +177,29 @@ void update_pixels(lua_State* lua, std::vector<int>& pixels)
 	}
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+	// Options parsing
+
+	cxxopts::Options options(argv[0], " - Command line options");
+	options.add_options()
+		("a,autoexec", "Execute script on start")
+		("s,script", "Script", cxxopts::value<std::string>())
+		;
+
+	auto result = options.parse(argc, argv);
+
+	if (result.count("autoexec"))
+	{
+		std::cout << "autoexec" << std::endl;
+	}
+
+	if (result.count("script"))
+	{
+		auto& script = result["s"].as<std::string>();
+		std::cout << script << std::endl;
+	}
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);

@@ -23,6 +23,7 @@ include_directories("${PROJECT_SOURCE_DIR}/external/lua/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/serial/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/nfd/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/glm/glm")
+include_directories("${PROJECT_SOURCE_DIR}/external/cxxopts/include")
 file(GLOB PROJECT_HEADERS "include/*.h")
 
 # include source files
