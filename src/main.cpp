@@ -31,13 +31,14 @@ const uint32_t pixel_rows = 14;
 const uint32_t pixel_columns = 28;
 const ImU32 black = ImColor(ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
 const ImU32 white = ImColor(ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+const ImU32 red = ImColor(ImVec4(1.0f, 0.0f, 0.1f, 1.0f));
 
 int frame = 0;
 float period = 0.0f;
 float prev_time = 0.0f;
 char editBuffer[1024 * 16] = "\0";
 char execBuffer[1024 * 16] = "\0";
-bool errors = false;
+bool hasErrors = false;
 bool unsavedModifications = false;
 std::string filepath;
 
@@ -93,10 +94,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		std::string error;
 		if (compile(lua, error))
 		{
+			hasErrors = false;
 			std::cout << "Compilation Successful\n";
 		}
 		else
 		{
+			hasErrors = true;
 			std::cout << "Compilation Failed ";
 			std::cout << "With Errors: " + error + "\n";
 		}
@@ -143,7 +146,7 @@ void apply_custom_style()
 
 void update_pixels(lua_State* lua, std::vector<int>& pixels)
 {
-	if (period >= 0.1f && !errors)
+	if (period >= 0.25f && !hasErrors)
 	{
 		for (uint32_t j = 0; j < pixel_columns; ++j)
 		{
@@ -157,7 +160,7 @@ void update_pixels(lua_State* lua, std::vector<int>& pixels)
 				if (lua_pcall(lua, 3, 1, 0) != 0)
 				{
 					std::cout << "Execution error" << std::endl;
-					errors = true;
+					hasErrors = true;
 				}
 
 				int index = i + pixel_rows * j;
@@ -183,22 +186,10 @@ int main(int argc, char* argv[])
 
 	cxxopts::Options options(argv[0], " - Command line options");
 	options.add_options()
-		("a,autoexec", "Execute script on start")
 		("s,script", "Script", cxxopts::value<std::string>())
 		;
 
 	auto result = options.parse(argc, argv);
-
-	if (result.count("autoexec"))
-	{
-		std::cout << "autoexec" << std::endl;
-	}
-
-	if (result.count("script"))
-	{
-		auto& script = result["s"].as<std::string>();
-		std::cout << script << std::endl;
-	}
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -258,8 +249,23 @@ int main(int argc, char* argv[])
 		"function main(x, y, frame)\n"
 		"	return all_whites()\n"
 		"end";
-	
-	memcpy(editBuffer, execBuffer, sizeof(char)*1024*16);
+
+	if (result.count("script"))
+	{
+		auto& script = result["s"].as<std::string>();
+		std::ifstream file(script);
+		if (file)
+		{
+			memset(&execBuffer[0], 0, sizeof(char) * 1024 * 16);
+			file.seekg(0, std::ios::end);
+			std::streampos length = file.tellg();
+			file.seekg(0, std::ios::beg);
+			file.read(&execBuffer[0], length);
+			filepath = script;
+		}
+	}
+
+	memcpy(editBuffer, execBuffer, sizeof(char) * 1024 * 16);
 	luaL_dostring(lua, execBuffer);
 
 	while (!glfwWindowShouldClose(window))
@@ -307,7 +313,7 @@ int main(int argc, char* argv[])
 
 				ImDrawList* draw_list = ImGui::GetWindowDrawList();
 				ImVec2 wp = ImGui::GetWindowPos();
-				draw_list->AddCircleFilled(ImVec2(wp.x + 20, wp.y + 55), 12.0f, white, 64);
+				draw_list->AddCircleFilled(ImVec2(wp.x + 20, wp.y + 55), 12.0f, hasErrors ? red : white, 64);
 				ImGui::End();
 			}
 			
