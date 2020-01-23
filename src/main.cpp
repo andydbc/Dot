@@ -284,20 +284,9 @@ int main()
 				ImGui::LabelText("", filename.c_str());
 				ImGui::PopStyleColor();
 
-				/*if (ImGui::Button("", ImVec2(30,30)))
-				{
-					memcpy(buffer, text, sizeof(char) * 1024 * 16);
-					int err = luaL_dostring(lua, buffer);
-
-					error = false;
-					if (err != 0)
-					{
-						std::cout << lua_tostring(lua, -1) << std::endl;
-						error = true;
-					}
-					
-				}*/
-
+				ImDrawList* draw_list = ImGui::GetWindowDrawList();
+				ImVec2 wp = ImGui::GetWindowPos();
+				draw_list->AddCircleFilled(ImVec2(wp.x + 20, wp.y + 55), 12.0f, white, 64);
 				ImGui::End();
 			}
 			
