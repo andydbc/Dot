@@ -35,8 +35,8 @@ file(GLOB SFD_SOURCES "external/sfd/src/*.c")
 
 if(UNIX)
     # If unix
-    list(APPEND serial_SRCS external/serial/src/impl/unix.cc)
-    list(APPEND serial_SRCS external/serial/src/impl/list_ports/list_ports_linux.cc)
+    list(APPEND SERIAL_SOURCES external/serial/src/impl/unix.cc)
+    list(APPEND SERIAL_SOURCES external/serial/src/impl/list_ports/list_ports_linux.cc)
 else()
     # If windows
     list(APPEND SERIAL_SOURCES external/serial/src/impl/win.cc)
