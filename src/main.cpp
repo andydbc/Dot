@@ -35,8 +35,7 @@ float period = 0.0f;
 float prev_time = 0.0f;
 char editBuffer[1024 * 16] = "\0";
 char execBuffer[1024 * 16] = "\0";
-bool error = false;
-bool play = false;
+bool errors = false;
 bool unsavedModifications = false;
 std::string filepath;
 
@@ -73,30 +72,31 @@ std::string get_current_folder()
 #endif
 }
 
-void compile(lua_State* lua)
+bool compile(lua_State* lua, std::string& ret_error)
 {
 	memcpy(execBuffer, editBuffer, sizeof(char) * 1024 * 16);
 	int err = luaL_dostring(lua, execBuffer);
-
-	error = false;
 	if (err != 0)
-	{
-		std::cout << lua_tostring(lua, -1) << std::endl;
-		play = false;
-	}
+		ret_error = lua_tostring(lua, -1);
+	return err ==0;
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
 		glfwSetWindowShouldClose(window, true);
-	else if (action == GLFW_PRESS && key == GLFW_KEY_P && mods == GLFW_MOD_CONTROL)
+	else if (action == GLFW_PRESS && key == GLFW_KEY_F5)
 	{
-		play = !play;
-		if (play)
+		lua_State* lua = (lua_State*)glfwGetWindowUserPointer(window);
+		std::string error;
+		if (compile(lua, error))
 		{
-			lua_State* lua = (lua_State*)glfwGetWindowUserPointer(window);
-			compile(lua);
+			std::cout << "Compilation Successful\n";
+		}
+		else
+		{
+			std::cout << "Compilation Failed ";
+			std::cout << "With Errors: " + error + "\n";
 		}
 	}
 	else if (action == GLFW_PRESS && key == GLFW_KEY_S && mods == GLFW_MOD_CONTROL)
@@ -141,9 +141,7 @@ void apply_custom_style()
 
 void update_pixels(lua_State* lua, std::vector<int>& pixels)
 {
-	if (!play) return;
-
-	if (period >= 0.1f)
+	if (period >= 0.1f && !errors)
 	{
 		for (uint32_t j = 0; j < pixel_columns; ++j)
 		{
@@ -156,8 +154,8 @@ void update_pixels(lua_State* lua, std::vector<int>& pixels)
 
 				if (lua_pcall(lua, 3, 1, 0) != 0)
 				{
-					std::cout << "Error" << std::endl;
-					error = true;
+					std::cout << "Execution error" << std::endl;
+					errors = true;
 				}
 
 				int index = i + pixel_rows * j;
