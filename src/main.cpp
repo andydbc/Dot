@@ -25,6 +25,8 @@ extern "C" {
 #endif
 #include "serial/serial.h"
 
+#include "perlin.h"
+
 const uint32_t width = 1024;
 const uint32_t height = 600;
 const uint32_t pixel_rows = 14;
@@ -96,6 +98,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		{
 			hasErrors = false;
 			std::cout << "Compilation Successful\n";
+			frame = 0;
 		}
 		else
 		{
@@ -104,7 +107,17 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			std::cout << "With Errors: " + error + "\n";
 		}
 	}
-	else if (action == GLFW_PRESS && key == GLFW_KEY_S && mods == GLFW_MOD_CONTROL)
+	else if (action == GLFW_PRESS && mods == GLFW_MOD_CONTROL && key == GLFW_KEY_N)
+	{
+		memset(editBuffer, 0, sizeof(char) * 1024 * 16);
+		memset(execBuffer, 0, sizeof(char) * 1024 * 16);
+	}
+	else if (action == GLFW_PRESS && mods == GLFW_MOD_CONTROL && key == GLFW_KEY_O)
+	{
+		nfdchar_t* outPath = NULL;
+		nfdresult_t result = NFD_OpenDialog("lua", get_current_folder().c_str(), &outPath);
+	}
+	else if (action == GLFW_PRESS && mods == GLFW_MOD_CONTROL && key == GLFW_KEY_S)
 	{
 		if (filepath.empty())
 		{
@@ -234,6 +247,8 @@ int main(int argc, char* argv[])
 	lua_getglobal(lua, "_G");
 	luaL_setfuncs(lua, printlib, 0);
 	lua_pop(lua, 1);
+
+	register_perlin(lua);
 
 	glfwSetWindowUserPointer(window, lua);
 
