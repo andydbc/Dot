@@ -246,7 +246,7 @@ void send_msg(serial::Serial& serial)
 
 int main(int argc, char* argv[])
 {
-
+	glfwSetErrorCallback(error_callback);
 	glfwInit();
 	
 #ifdef _WIN32
@@ -261,8 +261,7 @@ int main(int argc, char* argv[])
 #endif
 	
 	glfwWindowHint(GLFW_RESIZABLE, false);
-	glfwSetErrorCallback(error_callback);
-
+	
 	GLFWwindow* window = glfwCreateWindow(width, height, "Dot", NULL, NULL);
 	if (window == NULL)
 	{
