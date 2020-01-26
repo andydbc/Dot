@@ -241,7 +241,7 @@ void send_msg(serial::Serial& serial)
 
 int main(int argc, char* argv[])
 {
-#ifdef _WIN32
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-
+#ifdef _WIN32
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -426,8 +426,8 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		glfwSwapBuffers(window);
 #endif
+		glfwSwapBuffers(window);
 		period += dt;
 		prev_time = time;
 	}
@@ -440,11 +440,11 @@ int main(int argc, char* argv[])
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-	   
+#endif
+
 	// Clean-up GLFW
 	glfwDestroyWindow(window);
 	glfwTerminate();
-#endif
 
 	return 0;
 }
