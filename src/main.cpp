@@ -154,6 +154,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void apply_custom_style()
 {
+#ifdef _WIN32
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
 	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
@@ -165,6 +166,7 @@ void apply_custom_style()
 	style.ScrollbarRounding	= 0;
 	style.WindowBorderSize = 0;
 	style.WindowRounding = 0;
+#endif
 }
 
 void update_pixels(lua_State* lua)
