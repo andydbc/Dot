@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 project(Dot)
 
+if(UNIX)
+    FIND_PACKAGE(PkgConfig REQUIRED)
+    PKG_CHECK_MODULES(GTK3 REQUIRED gtk+-3.0)
+endif()
+
 # based largely on: 
 # https://github.com/Polytonic/Glitter/blob/master/CMakeLists.txt
 
@@ -26,6 +31,12 @@ include_directories("${PROJECT_SOURCE_DIR}/external/nfd/src")
 include_directories("${PROJECT_SOURCE_DIR}/external/glm/glm")
 include_directories("${PROJECT_SOURCE_DIR}/external/cxxopts/include")
 file(GLOB PROJECT_HEADERS "include/*.h")
+
+if(UNIX)
+    INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
+    LINK_DIRECTORIES(${GTK3_LIBRARY_DIRS})
+    ADD_DEFINITIONS(${GTK3_CFLAGS_OTHER})
+endif()
 
 # include source files
 file(GLOB PROJECT_SOURCES "src/*.cpp")
@@ -68,7 +79,7 @@ add_executable(Dot ${PROJECT_SOURCES}
 # add libraries
 
 if(UNIX)
-    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} rt pthread gtk+-3.0)
+    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} rt pthread ${GTK3_LIBRARIES})
 else()
     target_link_libraries(Dot glfw ${GLFW_LIBRARIES} setupapi)
 endif()
