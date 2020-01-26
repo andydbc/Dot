@@ -233,6 +233,7 @@ void send_msg(serial::Serial& serial)
 
 int main(int argc, char* argv[])
 {
+#ifdef _WIN32
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -270,6 +271,7 @@ int main(int argc, char* argv[])
 
 	apply_custom_style();
 	ImVec4 clear_color = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+#endif
 
 	lua_State* lua = luaL_newstate();
 	luaL_openlibs(lua);
@@ -337,6 +339,7 @@ int main(int argc, char* argv[])
 		send_msg(serial);
 #endif
 
+#ifdef _WIN32
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -416,7 +419,7 @@ int main(int argc, char* argv[])
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
-
+#endif
 		period += dt;
 		prev_time = time;
 	}
@@ -424,6 +427,7 @@ int main(int argc, char* argv[])
 	// Clean-up lua
 	lua_close(lua);
 
+#ifdef _WIN32
 	// Clean-up imgui
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -432,6 +436,7 @@ int main(int argc, char* argv[])
 	// Clean-up GLFW
 	glfwDestroyWindow(window);
 	glfwTerminate();
+#endif
 
 	return 0;
 }
