@@ -1,3 +1,4 @@
+#include <bitset>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -25,6 +26,7 @@ extern "C" {
 #endif
 #include "serial/serial.h"
 
+#include "display.h"
 #include "perlin.h"
 
 const uint32_t width = 1024;
@@ -43,6 +45,8 @@ char execBuffer[1024 * 16] = "\0";
 bool hasErrors = false;
 bool unsavedModifications = false;
 std::string filepath;
+
+display _display(pixel_rows, pixel_columns);
 
 static int lua_print(lua_State* L) 
 {
@@ -145,19 +149,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void apply_custom_style()
 {
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_WindowBg]			= ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_ChildBg]			= ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_FrameBg]			= ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_TextSelectedBg]	= ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
-	style.Colors[ImGuiCol_Button]			= ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
-	style.Colors[ImGuiCol_ButtonHovered]	= ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
-	style.Colors[ImGuiCol_ButtonActive]		= ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
-	style.WindowRounding					= 0;
-	style.WindowBorderSize					= 0;
-	style.ScrollbarRounding					= 0;
+	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
+	style.Colors[ImGuiCol_ButtonActive]	= ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
+	style.Colors[ImGuiCol_WindowBg]	= ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_Button] = ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
+	style.ScrollbarRounding	= 0;
+	style.WindowBorderSize = 0;
+	style.WindowRounding = 0;
 }
 
-void update_pixels(lua_State* lua, std::vector<int>& pixels)
+void update_pixels(lua_State* lua)
 {
 	if (period >= 0.25f && !hasErrors)
 	{
@@ -176,14 +180,14 @@ void update_pixels(lua_State* lua, std::vector<int>& pixels)
 					hasErrors = true;
 				}
 
-				int index = i + pixel_rows * j;
-				pixels[index] = 0;
+				_display.set_pixel(i, j, 0);
 
 				if (lua_isinteger(lua, -1))
 				{
 					int pixel = lua_tointeger(lua, -1);
 					lua_pop(lua, 1);
-					pixels[index] = pixel;
+
+					_display.set_pixel(i, j, pixel);
 				}
 			}
 		}
@@ -193,17 +197,42 @@ void update_pixels(lua_State* lua, std::vector<int>& pixels)
 	}
 }
 
+void send_msg(serial::Serial& serial)
+{
+#ifndef _WIN32
+	if (serial.isOpen())
+	{
+		int panel_width = 7;
+		int num_panels = pixel_rows / panel_width;
+
+		std::vector<unsigned char> msg;
+		msg.push_back(0x80);
+		msg.push_back(0x83);
+		msg.push_back(0xFF);
+
+		for (int p = 0; p < num_panels; ++p)
+		{
+			for (uint32_t y = 0; y < pixel_columns; ++y)
+			{
+				std::bitset<7> bitmask;
+				for (uint32_t x = 0; x < panel_width; ++x)
+				{
+					bitmask[x] = _display.get_pixel(x, y);
+				}
+
+				unsigned long i = bitmask.to_ulong();
+				msg.push_back((unsigned char)i);
+			}
+		}
+
+		msg.push_back(0x8F);
+		serial.write(&msg[0], msg.size());
+	}
+#endif // !_WIN32
+}
+
 int main(int argc, char* argv[])
 {
-	// Options parsing
-
-	cxxopts::Options options(argv[0], " - Command line options");
-	options.add_options()
-		("s,script", "Script", cxxopts::value<std::string>())
-		;
-
-	auto result = options.parse(argc, argv);
-
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -252,8 +281,6 @@ int main(int argc, char* argv[])
 
 	glfwSetWindowUserPointer(window, lua);
 
-	std::vector<int> pixels(pixel_rows * pixel_columns);
-
 	static char execBuffer[1024 * 16] = "-- welcome to Dot - v0.1 \n\n"
 		"function all_whites()\n"
 		"	return 1 \n"
@@ -264,6 +291,15 @@ int main(int argc, char* argv[])
 		"function main(x, y, frame)\n"
 		"	return all_whites()\n"
 		"end";
+
+
+	// Options parsing
+	cxxopts::Options options(argv[0], " - Command line options");
+	options.add_options()
+		("s,script", "Script", cxxopts::value<std::string>())
+		;
+
+	auto result = options.parse(argc, argv);
 
 	if (result.count("script"))
 	{
@@ -280,6 +316,10 @@ int main(int argc, char* argv[])
 		}
 	}
 
+#ifndef _WIN32
+	serial::Serial serial("/dev/ttyUSB0", 9600, serial::Timeout::simpleTimeout(1000));
+#endif
+
 	memcpy(editBuffer, execBuffer, sizeof(char) * 1024 * 16);
 	luaL_dostring(lua, execBuffer);
 
@@ -291,7 +331,11 @@ int main(int argc, char* argv[])
 		glfwPollEvents();
 
 		period += dt;
-		update_pixels(lua, pixels);
+		update_pixels(lua);
+
+#ifndef _WIN32
+		send_msg(serial);
+#endif
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -353,7 +397,8 @@ int main(int argc, char* argv[])
 					{
 						float x = (wp.x + dradius) + i * (dradius + padding) + ws.x * 0.5f - width * 0.5f;
 						float y = (wp.y + dradius) + j * (dradius + padding) + ws.y * 0.5f - height * 0.5f;
-						int pixelColor = pixels[i + pixel_rows*j] ? white : black;
+						int pixel = _display.get_pixel(i, j);
+						int pixelColor = pixel ? white : black;
 						draw_list->AddCircleFilled(ImVec2(x, y-20), radius, pixelColor, 64);
 					}
 				}

@@ -1,5 +1,4 @@
-#ifndef __PERLIN__
-#define __PERLIN__
+#pragma once
 
 #include <vector>
 
@@ -18,5 +17,3 @@ private:
 
 struct lua_State;
 void register_perlin(lua_State* lua);
-
-#endif
