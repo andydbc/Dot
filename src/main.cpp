@@ -205,6 +205,11 @@ void update_pixels(lua_State* lua)
 	}
 }
 
+void error_callback(int error, const char* description)
+{
+	fprintf(stderr, "Error: %s\n", description);
+}
+
 void send_msg(serial::Serial& serial)
 {
 #ifndef _WIN32
@@ -256,6 +261,7 @@ int main(int argc, char* argv[])
 #endif
 	
 	glfwWindowHint(GLFW_RESIZABLE, false);
+	glfwSetErrorCallback(error_callback);
 
 	GLFWwindow* window = glfwCreateWindow(width, height, "Dot", NULL, NULL);
 	if (window == NULL)
