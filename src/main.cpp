@@ -11,7 +11,9 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#ifdef _WIN32
 #include "nfd.h"
+#endif
 
 extern "C" {
 #include "lua.h"
@@ -118,11 +120,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	else if (action == GLFW_PRESS && mods == GLFW_MOD_CONTROL && key == GLFW_KEY_O)
 	{
+#ifdef _WIN32
 		nfdchar_t* outPath = NULL;
 		nfdresult_t result = NFD_OpenDialog("lua", get_current_folder().c_str(), &outPath);
+#endif
 	}
 	else if (action == GLFW_PRESS && mods == GLFW_MOD_CONTROL && key == GLFW_KEY_S)
 	{
+#ifdef _WIN32
 		if (filepath.empty())
 		{
 			nfdchar_t *outPath = NULL;
@@ -144,6 +149,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			unsavedModifications = false;
 		}
 	}
+#endif
 }
 
 void apply_custom_style()

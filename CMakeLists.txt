@@ -22,6 +22,7 @@ include_directories("${PROJECT_SOURCE_DIR}/external/glad/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/lua/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/serial/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/nfd/include")
+include_directories("${PROJECT_SOURCE_DIR}/external/nfd/src")
 include_directories("${PROJECT_SOURCE_DIR}/external/glm/glm")
 include_directories("${PROJECT_SOURCE_DIR}/external/cxxopts/include")
 file(GLOB PROJECT_HEADERS "include/*.h")
@@ -32,8 +33,13 @@ file(GLOB IMGUI_SOURCES "external/imgui/src/*.cpp")
 file(GLOB GLAD_SOURCES "external/glad/src/*.c")
 file(GLOB LUA_SOURCES "external/lua/src/*.c")
 file(GLOB SERIAL_SOURCES "external/serial/src/*.cc")
-file(GLOB NFD_SOURCES "external/nfd/src/*.c")
-file(GLOB NFD_SOURCES_CPP "external/nfd/src/*.cpp")
+file(GLOB NFD_SOURCES "external/nfd/src/nfd_common.c")
+
+if(UNIX)
+    list(APPEND NFD_SOURCES "external/nfd/src/nfd_gtk.c")
+else()
+    list(APPEND NFD_SOURCES "external/nfd/src/nfd_win.cpp")
+endif()
 
 if(UNIX)
     # If unix
@@ -48,7 +54,7 @@ endif()
 # group files in IDE
 source_group("include" FILES ${PROJECT_HEADERS})
 source_group("src" FILES ${PROJECT_SOURCES})
-source_group("external" FILES ${IMGUI_SOURCES} ${GLAD_SOURCES} ${LUA_SOURCES} ${SERIAL_SOURCES} ${NFD_SOURCES} ${NFD_SOURCES_CPP})
+source_group("external" FILES ${IMGUI_SOURCES} ${GLAD_SOURCES} ${LUA_SOURCES} ${SERIAL_SOURCES} ${NFD_SOURCES})
 
 # create the executable
 add_executable(Dot ${PROJECT_SOURCES}
@@ -57,13 +63,12 @@ add_executable(Dot ${PROJECT_SOURCES}
 					${GLAD_SOURCES}
 					${LUA_SOURCES}
 					${SERIAL_SOURCES}
-					${NFD_SOURCES}
-					${NFD_SOURCES_CPP})
+					${NFD_SOURCES})
 
 # add libraries
 
 if(UNIX)
-    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} rt pthread)
+    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} rt pthread gtk+-3.0)
 else()
     target_link_libraries(Dot glfw ${GLFW_LIBRARIES} setupapi)
 endif()
