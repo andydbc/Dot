@@ -148,8 +148,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			script.close();
 			unsavedModifications = false;
 		}
-	}
 #endif
+	}
 }
 
 void apply_custom_style()
