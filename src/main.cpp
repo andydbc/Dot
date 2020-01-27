@@ -215,6 +215,7 @@ void send_msg(serial::Serial& serial)
 #ifndef _WIN32
 	if (serial.isOpen())
 	{
+		std::cout << "Send Message" << std::endl;
 		int panel_width = 7;
 		int num_panels = pixel_rows / panel_width;
 
