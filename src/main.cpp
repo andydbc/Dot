@@ -212,22 +212,9 @@ void error_callback(int error, const char* description)
 void send_msg(serial::Serial& serial)
 {
 #ifndef _WIN32
-	if (serial.isOpen())
+	//if (serial.isOpen())
 	{
-		unsigned char all_white[32] =
-		{
-			0x80,
-			0x83,
-			0x01,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-			0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-			0x8F
-		};
-
-		serial.write(&all_white[0], 32);
-		/*int panel_width = 7;
+		int panel_width = 7;
 		int num_panels = pixel_rows / panel_width;
 
 		std::vector<unsigned char> msg;
@@ -235,7 +222,7 @@ void send_msg(serial::Serial& serial)
 		msg.push_back(0x83);
 		msg.push_back(0xFF);
 
-		for (int p = 0; p < num_panels; ++p)
+		//for (int p = 0; p < num_panels; ++p)
 		{
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
@@ -251,7 +238,7 @@ void send_msg(serial::Serial& serial)
 		}
 
 		msg.push_back(0x8F);
-		serial.write(&msg[0], msg.size());*/
+		serial.write(&msg[0], msg.size());
 	}
 #endif // !_WIN32
 }
