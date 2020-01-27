@@ -234,9 +234,9 @@ void send_msg(serial::Serial& serial)
 		{
 			std::bitset<8> bitmask;
 				
-			for (uint32_t x = 0; x < pixel_rows / num_panels; ++x)
+			for (uint32_t x = 0; x < pixel_rows / 2; ++x)
 			{
-				bitmask[x] = _display.get_pixel(x*panel, y);
+				bitmask[x] = _display.get_pixel(x*(panel+1), y);
 			}
 
 			unsigned long i = bitmask.to_ulong();
