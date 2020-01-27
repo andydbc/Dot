@@ -236,7 +236,8 @@ void send_msg(serial::Serial& serial)
 				
 			for (uint32_t x = 0; x < pixel_rows / 2; ++x)
 			{
-				bitmask[x] = _display.get_pixel(x*(panel+1), y);
+				int xx = x + (panel_width * panel);
+				bitmask[x] = _display.get_pixel(xx, y);
 			}
 
 			unsigned long i = bitmask.to_ulong();
