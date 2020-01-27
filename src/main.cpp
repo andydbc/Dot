@@ -337,6 +337,10 @@ int main(int argc, char* argv[])
 
 #ifndef _WIN32
 	serial::Serial serial("/dev/ttyUSB0", 9600, serial::Timeout::simpleTimeout(1000));
+	if (serial.isOpen())
+	{
+		std::cout << "Serial Connected" << std::endl;
+	}
 #endif
 
 	memcpy(editBuffer, execBuffer, sizeof(char) * 1024 * 16);
