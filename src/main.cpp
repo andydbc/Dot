@@ -221,7 +221,7 @@ void send_msg(serial::Serial& serial)
 
 		for (int p = 0; p < num_panels; ++p)
 		{
-			int panel = p+1;
+			int panel = p;
 			
 			std::bitset<8> panelmask;
 			panelmask[panel] = 1;
