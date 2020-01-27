@@ -218,14 +218,14 @@ void send_msg(serial::Serial& serial)
 		std::vector<unsigned char> msg;
 		msg.push_back(0x80);
 		msg.push_back(0x83);
-		msg.push_back(0xFF);
+		msg.push_back(0x02);
 
 		//for (int p = 0; p < num_panels; ++p)
 		{
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
 				std::bitset<8> bitmask;
-				for (uint32_t x = 0; x < pixel_rows; ++x)
+				for (uint32_t x = 0; x < pixel_rows /2; ++x)
 				{
 					bitmask[(x+1)%7] = _display.get_pixel(x, y);
 					if (x > 0 && (x+1) % 7 == 0)
