@@ -171,7 +171,7 @@ void apply_custom_style()
 
 void update_pixels(lua_State* lua)
 {
-	if (period >= 0.5f && !hasErrors)
+	if (period >= 0.033f && !hasErrors)
 	{
 		for (uint32_t j = 0; j < pixel_columns; ++j)
 		{
