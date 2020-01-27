@@ -214,24 +214,23 @@ void send_msg(serial::Serial& serial)
 #ifndef _WIN32
 	{
 		int panel_width = 7;
+		int num_panels = pixel_rows / panel_width;
 
-		std::vector<unsigned char> msg;
-		msg.push_back(0x80);
-		msg.push_back(0x83);
-		msg.push_back(0xFF);
-
-		//for (int p = 0; p < num_panels; ++p)
+		for (int p = 0; p < num_panels; ++p)
 		{
-			int panel = 1;
+			int panel = p+1;
+
+			std::bitset<8> bitmask;
+			std::vector<unsigned char> msg;
+
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
-				std::bitset<8> bitmask;
-				std::vector<unsigned char> msg;
+				
 				msg.push_back(0x80);
 				msg.push_back(0x83);
 				msg.push_back(panel);
 				
-				for (uint32_t x = 0; x < pixel_rows/2; ++x)
+				for (uint32_t x = 0; x < pixel_rows / num_panels; ++x)
 				{
 					bitmask[x] = _display.get_pixel(x*panel, y);
 				}
@@ -240,7 +239,7 @@ void send_msg(serial::Serial& serial)
 				msg.push_back((unsigned char)i);
 				msg.push_back(0x8F);
 				serial.write(&msg[0], msg.size());
-				panel++;
+				
 			}
 		}
 	}
