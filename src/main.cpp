@@ -194,7 +194,6 @@ void update_pixels(lua_State* lua)
 				{
 					int pixel = lua_tointeger(lua, -1);
 					lua_pop(lua, 1);
-					std::cout << pixel << std::endl;
 					_display.set_pixel(i, j, pixel);
 				}
 			}
@@ -227,7 +226,7 @@ void send_msg(serial::Serial& serial)
 		{
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
-				std::bitset<7> bitmask;
+				std::bitset<8> bitmask;
 				for (uint32_t x = 0; x < panel_width; ++x)
 				{
 					bitmask[x] = _display.get_pixel(x, y);
