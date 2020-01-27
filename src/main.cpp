@@ -296,7 +296,9 @@ int main(int argc, char* argv[])
 
 	register_perlin(lua);
 
+#ifdef _WIN32
 	glfwSetWindowUserPointer(window, lua);
+#endif
 
 	static char execBuffer[1024 * 16] = "-- welcome to Dot - v0.1 \n\n"
 		"function all_whites()\n"
