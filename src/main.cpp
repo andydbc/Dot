@@ -209,10 +209,10 @@ void error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
-void send_msg(serial::Serial& serial)
+void send_msg(serial::Serial& &serial)
 {
 #ifndef _WIN32
-	//if (serial.isOpen())
+	
 	{
 		int panel_width = 7;
 
@@ -221,18 +221,21 @@ void send_msg(serial::Serial& serial)
 		msg.push_back(0x83);
 		msg.push_back(0xFF);
 
-		//for (int p = 0; p < num_panels; ++p)
+		for (int p = 0; p < num_panels; ++p)
 		{
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
 				std::bitset<8> bitmask;
 				for (uint32_t x = 0; x < pixel_rows; ++x)
 				{
-					bitmask[x] = _display.get_pixel(x, y);
+					bitmask[(x+1)%7] = _display.get_pixel(x, y);
+					if (x > 0 && (x+1) % 7 == 0)
+					{
+						unsigned long i = bitmask.to_ulong();
+						msg.push_back((unsigned char)i);
+					}
 				}
 
-				unsigned long i = bitmask.to_ulong();
-				msg.push_back((unsigned char)i);
 			}
 		}
 
