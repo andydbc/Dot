@@ -221,7 +221,7 @@ void send_msg(serial::Serial& &serial)
 		msg.push_back(0x83);
 		msg.push_back(0xFF);
 
-		for (int p = 0; p < num_panels; ++p)
+		//for (int p = 0; p < num_panels; ++p)
 		{
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
