@@ -218,28 +218,31 @@ void send_msg(serial::Serial& serial)
 		std::vector<unsigned char> msg;
 		msg.push_back(0x80);
 		msg.push_back(0x83);
-		msg.push_back(0x02);
+		msg.push_back(0xFF);
 
 		//for (int p = 0; p < num_panels; ++p)
 		{
+			int panel = 1;
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
 				std::bitset<8> bitmask;
-				for (uint32_t x = 0; x < pixel_rows /2; ++x)
+				std::vector<unsigned char> msg;
+				msg.push_back(0x80);
+				msg.push_back(0x83);
+				msg.push_back(panel);
+				
+				for (uint32_t x = 0; x < pixel_rows/2; ++x)
 				{
-					bitmask[(x+1)%7] = _display.get_pixel(x, y);
-					if (x > 0 && (x+1) % 7 == 0)
-					{
-						unsigned long i = bitmask.to_ulong();
-						msg.push_back((unsigned char)i);
-					}
+					bitmask[x] = _display.get_pixel(x*panel, y);
 				}
 
+				unsigned long i = bitmask.to_ulong();
+				msg.push_back((unsigned char)i);
+				msg.push_back(0x8F);
+				serial.write(&msg[0], msg.size());
+				panel++;
 			}
 		}
-
-		msg.push_back(0x8F);
-		serial.write(&msg[0], msg.size());
 	}
 #endif // !_WIN32
 }
