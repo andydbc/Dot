@@ -215,40 +215,39 @@ void send_msg()
 void send_msg(serial::Serial& serial)
 #endif
 {
+	int panel_width = 7;
+	int num_panels = 1;//pixel_rows / panel_width;
+
+	for (int p = 0; p < num_panels; ++p)
 	{
-		int panel_width = 7;
-		int num_panels = pixel_rows / panel_width;
-
-		for (int p = 0; p < num_panels; ++p)
-		{
-			int panel = p;
+		int panel = p;
 			
-			std::bitset<8> panelmask;
-			panelmask[panel] = 1;
-			std::vector<unsigned char> msg;
-			msg.push_back(0x80);
-			msg.push_back(0x83);
-			msg.push_back((unsigned char)panelmask.to_ulong());
+		std::bitset<8> panelmask;
+		panelmask[panel] = 1;
+			
+		std::vector<unsigned char> msg;
+		msg.push_back(0x80);
+		msg.push_back(0x83);
+		msg.push_back((unsigned char)panelmask.to_ulong());
 
-			for (uint32_t y = 0; y < pixel_columns; ++y)
+		for (uint32_t y = 0; y < pixel_columns; ++y)
+		{
+			std::bitset<8> bitmask;
+				
+			for (uint32_t x = 0; x < pixel_rows / num_panels; ++x)
 			{
-				std::bitset<8> bitmask;
-				
-				for (uint32_t x = 0; x < pixel_rows / num_panels; ++x)
-				{
-					bitmask[x] = _display.get_pixel(x*panel, y);
-				}
-
-				unsigned long i = bitmask.to_ulong();
-				msg.push_back((unsigned char)i);
-				
+				bitmask[x] = _display.get_pixel(x*panel, y);
 			}
 
-			msg.push_back(0x8F);
-#ifndef _WIN32
-			serial.write(&msg[0], msg.size());
-#endif
+			unsigned long i = bitmask.to_ulong();
+			msg.push_back((unsigned char)i);
+				
 		}
+
+		msg.push_back(0x8F);
+#ifndef _WIN32
+		serial.write(&msg[0], msg.size());
+#endif
 	}
 }
 
