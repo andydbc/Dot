@@ -254,14 +254,8 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-#else
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-	//glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#endif
-	
 	glfwWindowHint(GLFW_RESIZABLE, false);
-	
+
 	GLFWwindow* window = glfwCreateWindow(width, height, "Dot", NULL, NULL);
 	if (window == NULL)
 	{
@@ -278,7 +272,7 @@ int main(int argc, char* argv[])
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-#ifdef _WIN32
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -346,7 +340,11 @@ int main(int argc, char* argv[])
 	memcpy(editBuffer, execBuffer, sizeof(char) * 1024 * 16);
 	luaL_dostring(lua, execBuffer);
 
+#ifdef _WIN32
 	while (!glfwWindowShouldClose(window))
+#else
+	while(1)
+#endif
 	{
 		float time = glfwGetTime();
 		float dt = time - prev_time;
@@ -438,9 +436,8 @@ int main(int argc, char* argv[])
 		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-#endif
 		glfwSwapBuffers(window);
+#endif
 		period += dt;
 		prev_time = time;
 	}
@@ -453,10 +450,9 @@ int main(int argc, char* argv[])
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-#endif
-
 	// Clean-up GLFW
 	glfwDestroyWindow(window);
+#endif
 	glfwTerminate();
 
 	return 0;
