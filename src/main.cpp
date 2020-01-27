@@ -215,7 +215,6 @@ void send_msg(serial::Serial& serial)
 	//if (serial.isOpen())
 	{
 		int panel_width = 7;
-		int num_panels = pixel_rows / panel_width;
 
 		std::vector<unsigned char> msg;
 		msg.push_back(0x80);
@@ -227,7 +226,7 @@ void send_msg(serial::Serial& serial)
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
 				std::bitset<8> bitmask;
-				for (uint32_t x = 0; x < panel_width; ++x)
+				for (uint32_t x = 0; x < pixel_rows; ++x)
 				{
 					bitmask[x] = _display.get_pixel(x, y);
 				}
