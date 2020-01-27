@@ -217,7 +217,7 @@ void send_msg(serial::Serial& serial)
 
 		std::vector<unsigned char> msg;
 		msg.push_back(0x80);
-		msg.push_back(0x85);
+		msg.push_back(0x83);
 		msg.push_back(0xFF);
 
 		//for (int p = 0; p < num_panels; ++p)
