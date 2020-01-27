@@ -1,6 +1,6 @@
 function main(x, y, frame)
 	v = x + frame
-	if(v > 14) then
+	if(math.fmod(v, 14) == 0) then
 		return 1
 	end
 	return 0
