@@ -171,7 +171,7 @@ void apply_custom_style()
 
 void update_pixels(lua_State* lua)
 {
-	if (period >= 0.25f && !hasErrors)
+	if (period >= 0.5f && !hasErrors)
 	{
 		for (uint32_t j = 0; j < pixel_columns; ++j)
 		{
@@ -194,7 +194,7 @@ void update_pixels(lua_State* lua)
 				{
 					int pixel = lua_tointeger(lua, -1);
 					lua_pop(lua, 1);
-
+					std::cout << pixel << std::endl;
 					_display.set_pixel(i, j, pixel);
 				}
 			}
@@ -215,14 +215,13 @@ void send_msg(serial::Serial& serial)
 #ifndef _WIN32
 	if (serial.isOpen())
 	{
-		std::cout << "Send Message" << std::endl;
 		int panel_width = 7;
 		int num_panels = pixel_rows / panel_width;
 
 		std::vector<unsigned char> msg;
 		msg.push_back(0x80);
 		msg.push_back(0x83);
-		msg.push_back(0x01);
+		msg.push_back(0xFF);
 
 		for (int p = 0; p < num_panels; ++p)
 		{
