@@ -209,9 +209,12 @@ void error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
+#ifdef _WIN32
+void send_msg()
+#else
 void send_msg(serial::Serial& serial)
+#endif
 {
-#ifndef _WIN32
 	{
 		int panel_width = 7;
 		int num_panels = pixel_rows / panel_width;
@@ -219,16 +222,17 @@ void send_msg(serial::Serial& serial)
 		for (int p = 0; p < num_panels; ++p)
 		{
 			int panel = p+1;
-
-			std::bitset<8> bitmask;
+			
+			std::bitset<8> panelmask;
+			panelmask[panel] = 1;
 			std::vector<unsigned char> msg;
+			msg.push_back(0x80);
+			msg.push_back(0x83);
+			msg.push_back((unsigned char)panelmask.to_ulong());
 
 			for (uint32_t y = 0; y < pixel_columns; ++y)
 			{
-				
-				msg.push_back(0x80);
-				msg.push_back(0x83);
-				msg.push_back(panel);
+				std::bitset<8> bitmask;
 				
 				for (uint32_t x = 0; x < pixel_rows / num_panels; ++x)
 				{
@@ -237,13 +241,15 @@ void send_msg(serial::Serial& serial)
 
 				unsigned long i = bitmask.to_ulong();
 				msg.push_back((unsigned char)i);
-				msg.push_back(0x8F);
-				serial.write(&msg[0], msg.size());
 				
 			}
+
+			msg.push_back(0x8F);
+#ifndef _WIN32
+			serial.write(&msg[0], msg.size());
+#endif
 		}
 	}
-#endif // !_WIN32
 }
 
 int main(int argc, char* argv[])
@@ -362,7 +368,9 @@ int main(int argc, char* argv[])
 		period += dt;
 		update_pixels(lua);
 
-#ifndef _WIN32
+#ifdef _WIN32
+		send_msg();
+#else
 		send_msg(serial);
 #endif
 
