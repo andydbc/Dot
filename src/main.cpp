@@ -212,14 +212,13 @@ void error_callback(int error, const char* description)
 void send_msg(serial::Serial& serial)
 {
 #ifndef _WIN32
-	
 	{
 		int panel_width = 7;
 
 		std::vector<unsigned char> msg;
 		msg.push_back(0x80);
-		msg.push_back(0x83);
-		msg.push_back(0xFF);
+		msg.push_back(0x85);
+		msg.push_back(0x01);
 
 		//for (int p = 0; p < num_panels; ++p)
 		{
