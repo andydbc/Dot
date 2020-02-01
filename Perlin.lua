@@ -3,10 +3,12 @@ function main(x, y, frame)
 		perlin_seed(4439)
 	end
 
-	ux = x/14.0 * 2.0
-	uy = y/28.0 * 2.0 - (frame * 0.2)
+	nx = x/14.0
+	ny = y/28.0
+	ux = nx*2.0
+	uy = ny*2.0-(frame * 0.2)
 
-	v = perlin_noise(ux, uy, 0) * 100
+	v = perlin_noise(ux, uy, frame*0.1)*100
 	if(v > 50) then
 		return 1
 	end
