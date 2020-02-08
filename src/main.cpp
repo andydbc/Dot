@@ -218,7 +218,7 @@ void send_msg(serial::Serial& serial)
 	int panel_width = 7;
 	int num_panels = pixel_rows / panel_width;
 
-	for (int p = 0; p < num_panels; ++p)
+	for (int p = 0; p < 1; ++p)
 	{
 		int panel = p;
 			
