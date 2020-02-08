@@ -223,7 +223,7 @@ void send_msg(serial::Serial& serial)
 		int panel = p;
 			
 		std::bitset<8> panelmask;
-		panelmask[panel] = 1;
+		panelmask[num_panels-panel] = 1;
 			
 		std::vector<unsigned char> msg;
 		msg.push_back(0x80);
