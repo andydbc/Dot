@@ -221,7 +221,7 @@ void send_msg(serial::Serial& serial)
 	int panel_width = 7;
 	int num_panels = pixel_rows / panel_width;
 
-	for (int p = 0; p < 1; ++p)
+	for (int p = 0; p < num_panels; ++p)
 	{
 		int panel = p;
 			
@@ -253,7 +253,7 @@ void send_msg(serial::Serial& serial)
 		serial.write(&msg[0], msg.size());
 #endif
 	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 int main(int argc, char* argv[])
