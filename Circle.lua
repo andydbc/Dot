@@ -4,7 +4,7 @@ end
 
 function main(x, y, frame)
 
-	t = math.fmod(frame*5, 300)
+	t = math.fmod(frame*20, 300)
 	d = dist(x, y, 6.5, 13.5)
 	--d = math.fmod(d, 60)
 
