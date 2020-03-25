@@ -207,6 +207,9 @@ void error_callback(int error, const char* description)
 	fprintf(stderr, "Error: %s\n", description);
 }
 
+#include <chrono>
+#include <thread>
+
 #ifdef _WIN32
 void send_msg()
 #else
@@ -221,7 +224,7 @@ void send_msg(serial::Serial& serial)
 		int panel = p;
 			
 		std::bitset<8> panelmask;
-		panelmask[panel] = 1;
+		panelmask[(num_panels-1)-panel] = 1;
 			
 		std::vector<unsigned char> msg;
 		msg.push_back(0x80);
@@ -242,12 +245,13 @@ void send_msg(serial::Serial& serial)
 			msg.push_back((unsigned char)i);
 				
 		}
-
+	
 		msg.push_back(0x8F);
 #ifndef _WIN32
 		serial.write(&msg[0], msg.size());
 #endif
 	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 int main(int argc, char* argv[])
