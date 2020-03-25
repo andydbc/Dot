@@ -1,18 +1,12 @@
 cmake_minimum_required(VERSION 3.0)
 project(Dot)
 
-if(UNIX)
-    FIND_PACKAGE(PkgConfig REQUIRED)
-    PKG_CHECK_MODULES(GTK3 REQUIRED gtk+-3.0)
-endif()
-
-# based largely on: 
-# https://github.com/Polytonic/Glitter/blob/master/CMakeLists.txt
-
 # turn off compiler warnings
 if(MSVC)
+    add_compile_definitions(DOT_WINDOWS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 else()
+    add_compile_definitions(DOT_UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++11")
 endif()
 
@@ -28,17 +22,10 @@ include_directories("${PROJECT_SOURCE_DIR}/external/lua/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/serial/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/nfd/include")
 include_directories("${PROJECT_SOURCE_DIR}/external/nfd/src")
-include_directories("${PROJECT_SOURCE_DIR}/external/glm/glm")
 include_directories("${PROJECT_SOURCE_DIR}/external/cxxopts/include")
-file(GLOB PROJECT_HEADERS "include/*.h")
-
-if(UNIX)
-    INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
-    LINK_DIRECTORIES(${GTK3_LIBRARY_DIRS})
-    ADD_DEFINITIONS(${GTK3_CFLAGS_OTHER})
-endif()
 
 # include source files
+file(GLOB PROJECT_HEADERS "src/*.h")
 file(GLOB PROJECT_SOURCES "src/*.cpp")
 file(GLOB IMGUI_SOURCES "external/imgui/src/*.cpp")
 file(GLOB GLAD_SOURCES "external/glad/src/*.c")
@@ -47,17 +34,10 @@ file(GLOB SERIAL_SOURCES "external/serial/src/*.cc")
 file(GLOB NFD_SOURCES "external/nfd/src/nfd_common.c")
 
 if(UNIX)
-    list(APPEND NFD_SOURCES "external/nfd/src/nfd_gtk.c")
-else()
-    list(APPEND NFD_SOURCES "external/nfd/src/nfd_win.cpp")
-endif()
-
-if(UNIX)
-    # If unix
     list(APPEND SERIAL_SOURCES external/serial/src/impl/unix.cc)
     list(APPEND SERIAL_SOURCES external/serial/src/impl/list_ports/list_ports_linux.cc)
 else()
-    # If windows
+    list(APPEND NFD_SOURCES "external/nfd/src/nfd_win.cpp")
     list(APPEND SERIAL_SOURCES external/serial/src/impl/win.cc)
     list(APPEND SERIAL_SOURCES external/serial/src/impl/list_ports/list_ports_win.cc)
 endif()

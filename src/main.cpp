@@ -11,8 +11,11 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#ifdef _WIN32
+#if defined(DOT_WINDOWS)
+#include <windows.h>
 #include "nfd.h"
+#elif defined(DOT_UNIX)
+#include <unistd.h>
 #endif
 
 extern "C" {
@@ -21,11 +24,6 @@ extern "C" {
 #include "lualib.h"
 }
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 #include "serial/serial.h"
 
 #include "display.h"
@@ -283,7 +281,7 @@ int main(int argc, char* argv[])
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigInputTextCursorBlink = true;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
 	io.Fonts->AddFontFromFileTTF("resources/input_mono_regular.ttf", 20.0f);
