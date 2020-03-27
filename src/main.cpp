@@ -1,15 +1,15 @@
 #include "dot.h"
 
-#include "main_view.h"
+#include "editor_view.h"
 
 #include <bitset>
 #include <fstream>
 #include <iostream>
-#include <vector>
+#include <map>
 
+std::string window_title = "Dot v";
 int window_width = 1024;
 int window_height = 600;
-const std::string window_title = "Dot";
 bool refresh = false;
 
 void on_error(int action,const char* msg)
@@ -34,30 +34,42 @@ void update(dot::controller& c)
 	refresh = false;
 }
 
-void parse_args(int argc, char* argv[])
+auto parse_options(int argc, char* argv[])
 {
+	std::map<std::string, std::string> options;
+
 	for (int i = 1; i < argc; ++i) {
 		std::string arg = argv[i];
 		if (arg == "-s")
 		{
-			if(i+i < argc)
-				std::cout << argv[i+1] << std::endl;
+			if (i + i < argc)
+			{
+				options[arg] = argv[i+1];
+			}
 		}
 	}
+	return options;
 }
 
 int main(int argc, char* argv[])
 {
-	parse_args(argc, argv);
+	auto options = parse_options(argc, argv);
 
 	dot::controller controller(
 		dot::hardware{ 14, 24 }
 	);
 
+	auto scriptIt = options.find("-s");
+	if (scriptIt != options.end())
+	{
+		auto& scriptPath = scriptIt->second;
+		controller.from_file(scriptPath);
+	}
+
 	dot::window window;
 	
 	window.initialize(window_width, window_height, window_title, on_key, on_error);
-	window.set_view<main_view>(&controller);
+	window.set_view<editor_view>(&controller);
 	
 	float timeInterval = 1.0f / 30.0f;
 	float time = 0.0f;
@@ -221,45 +233,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
-void update_pixels(lua_State* lua)
-{
-	if (period >= 0.033f && !hasErrors)
-	{
-		for (uint32_t j = 0; j < pixel_columns; ++j)
-		{
-			for (uint32_t i = 0; i < pixel_rows; ++i)
-			{
-				lua_getglobal(lua, "main");
-				lua_pushinteger(lua, i);
-				lua_pushinteger(lua, j);
-				lua_pushinteger(lua, frame);
-
-				if (lua_pcall(lua, 3, 1, 0) != 0)
-				{
-					std::cout << "Execution error" << std::endl;
-					hasErrors = true;
-				}
-
-				_display.set_pixel(i, j, 0);
-
-				if (lua_isinteger(lua, -1))
-				{
-					int pixel = lua_tointeger(lua, -1);
-					lua_pop(lua, 1);
-					_display.set_pixel(i, j, pixel);
-				}
-			}
-		}
-
-		frame++;
-		period = 0;
-	}
-}
-
-void error_callback(int error, const char* description)
-{
-	fprintf(stderr, "Error: %s\n", description);
-}
 
 #include <chrono>
 #include <thread>
@@ -310,29 +283,6 @@ void send_msg(serial::Serial& serial)
 
 int main(int argc, char* argv[])
 {
-
-	// Options parsing
-	//cxxopts::Options options(argv[0], " - Command line options");
-	//options.add_options()
-	//	("s,script", "Script", cxxopts::value<std::string>())
-	//	;
-
-	//auto result = options.parse(argc, argv);
-
-	//if (result.count("script"))
-	//{
-	//	auto& script = result["s"].as<std::string>();
-	//	std::ifstream file(script);
-	//	if (file)
-	//	{
-	//		memset(&execBuffer[0], 0, sizeof(char) * 1024 * 16);
-	//		file.seekg(0, std::ios::end);
-	//		std::streampos length = file.tellg();
-	//		file.seekg(0, std::ios::beg);
-	//		file.read(&execBuffer[0], length);
-	//		filepath = script;
-	//	}
-	//}
 
 #ifndef _WIN32
 	serial::Serial serial("/dev/ttyUSB0", 9600, serial::Timeout::simpleTimeout(1000));

@@ -29,19 +29,6 @@ public:
 	void run_from_memory(const std::string& code);
 	void run_from_file(const std::string& filepath);
 
-	template<typename R, typename T>
-	void add_function(const std::string& name, std::function<R(T)> function)
-	{
-		std::function<void(StatePtr)> wrapper;
-		wrapper = [function](StatePtr state)
-		{
-			T v;
-			function(v);
-		};
-
-		_functions[name] = wrapper;
-	}
-
 	template<typename To, typename ...Ts>
 	To call(const std::string& name, Ts... args)
 	{

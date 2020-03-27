@@ -23,6 +23,8 @@ public:
 
 	void execute(bool reload = false);
 
+	void from_file(const std::string& script);
+
 	void get_script(std::vector<char>& buffer);
 	void set_script(std::vector<char>& buffer);
 
@@ -33,6 +35,8 @@ public:
 	const std::vector<bool> get_pixels() const {
 		return _pixels;
 	}
+
+	void send_to_hardware();
 
 private:
 	interpreter _interpreter;

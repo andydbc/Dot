@@ -1,5 +1,6 @@
 #include "controller.h"
 
+#include <fstream>
 #include <iostream>
 
 static size_t buffer_length = 1024 * 10;
@@ -13,6 +14,8 @@ static char defaultScript[1024] = "-- welcome to Dot - v0.1 \n\n"
 	"function main(x, y, frame)\n"
 	"	return all_whites()\n"
 	"end";
+
+static const char* entry = "main";
 
 DOT_NS_BEGIN
 
@@ -38,13 +41,28 @@ void controller::execute(bool reload)
 	{
 		for (int i = 0; i < _hardware.rows; ++i)
 		{
-			int value = _interpreter.call<int>("main", i, j, _frame_count);
+			int value = _interpreter.call<int>(entry, i, j, _frame_count);
 			int idx = i + _hardware.rows * j;
 			_pixels[idx] = value;
 		}
 	}
 
 	_frame_count++;
+}
+
+void controller::from_file(const std::string& script)
+{
+	std::ifstream script_file(script);
+	if (script_file)
+	{
+		memset(&_script[0], 0, buffer_length);
+		script_file.seekg(0, std::ios::end);
+		std::streampos length = script_file.tellg();
+		script_file.seekg(0, std::ios::beg);
+		script_file.read(&_script[0], length);
+	}
+
+	execute(true);
 }
 
 void controller::get_script(std::vector<char>& buffer)
