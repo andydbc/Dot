@@ -3,6 +3,8 @@
 #include "common.h"
 #include "interpreter.h"
 
+#include <serial/serial.h>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -13,6 +15,7 @@ struct hardware
 {
 	int rows;
 	int colums;
+	std::string port;
 };
 
 class controller
@@ -39,11 +42,13 @@ public:
 	void send_to_hardware();
 
 private:
+	hardware _hardware;
 	interpreter _interpreter;
 	std::vector<char> _script;
 	std::vector<bool> _pixels;
-	hardware _hardware;
 	int _frame_count;
+
+	serial::Serial _serial;
 };
 
 DOT_NS_END

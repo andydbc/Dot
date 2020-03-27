@@ -77,4 +77,12 @@ void controller::set_script(std::vector<char>& buffer)
 	memcpy(&_script[0], &buffer[0], buffer.size());
 }
 
+void controller::send_to_hardware()
+{
+	if (!_serial.isOpen())
+	{
+		//_serial("/dev/ttyUSB0", 9600, serial::Timeout::simpleTimeout(1000));
+	}
+}
+
 DOT_NS_END
