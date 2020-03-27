@@ -1,13 +1,84 @@
+#include "dot.h"
+
+#include "main_view.h"
+
 #include <bitset>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
-#include "cxxopts.hpp"
+int window_width = 1024;
+int window_height = 600;
+const std::string window_title = "Dot";
+bool refresh = false;
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "imgui.h"
+void on_error(int action,const char* msg)
+{
+	std::cout << msg << std::endl;
+}
+
+void on_key(dot::window& w, int action, int mod, int key)
+{
+	if (action == GLFW_PRESS)
+	{
+		if (key == GLFW_KEY_ESCAPE)
+			w.close();
+		if (key == GLFW_KEY_F5)
+			refresh = true;
+	}
+}
+
+void update(dot::controller& c)
+{
+	c.execute(refresh);
+	refresh = false;
+}
+
+void parse_args(int argc, char* argv[])
+{
+	for (int i = 1; i < argc; ++i) {
+		std::string arg = argv[i];
+		if (arg == "-s")
+		{
+			if(i+i < argc)
+				std::cout << argv[i+1] << std::endl;
+		}
+	}
+}
+
+int main(int argc, char* argv[])
+{
+	parse_args(argc, argv);
+
+	dot::controller controller(
+		dot::hardware{ 14, 24 }
+	);
+
+	dot::window window;
+	
+	window.initialize(window_width, window_height, window_title, on_key, on_error);
+	window.set_view<main_view>(&controller);
+	
+	float timeInterval = 1.0f / 30.0f;
+	float time = 0.0f;
+
+	while (window.is_open())
+	{
+		time += glfwGetTime();
+
+		if (time > timeInterval)
+		{
+			update(controller);
+			time = 0.0f;
+		}
+
+		window.render();
+	}
+
+	return 0;
+}
+
+/*#include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
@@ -34,7 +105,7 @@ const uint32_t height = 600;
 const uint32_t pixel_rows = 14;
 const uint32_t pixel_columns = 28;
 const ImU32 black = ImColor(ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
-const ImU32 white = ImColor(ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+const ImU32 white = ImColor(ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
 const ImU32 red = ImColor(ImVec4(1.0f, 0.0f, 0.1f, 1.0f));
 
 int frame = 0;
@@ -150,23 +221,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
-void apply_custom_style()
-{
-#ifdef _WIN32
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
-	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
-	style.Colors[ImGuiCol_ButtonActive]	= ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
-	style.Colors[ImGuiCol_WindowBg]	= ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_Button] = ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
-	style.ScrollbarRounding	= 0;
-	style.WindowBorderSize = 0;
-	style.WindowRounding = 0;
-#endif
-}
-
 void update_pixels(lua_State* lua)
 {
 	if (period >= 0.033f && !hasErrors)
@@ -256,94 +310,29 @@ void send_msg(serial::Serial& serial)
 
 int main(int argc, char* argv[])
 {
-	glfwSetErrorCallback(error_callback);
-	glfwInit();
-	
-#ifdef _WIN32
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_RESIZABLE, false);
-
-	GLFWwindow* window = glfwCreateWindow(width, height, "Dot", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	glfwMakeContextCurrent(window);
-	glfwSetKeyCallback(window, key_callback);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigInputTextCursorBlink = true;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
-	io.Fonts->AddFontFromFileTTF("resources/input_mono_regular.ttf", 20.0f);
-
-	const char* glsl_version = "#version 460";
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init(glsl_version);
-
-	apply_custom_style();
-	ImVec4 clear_color = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-#endif
-
-	lua_State* lua = luaL_newstate();
-	luaL_openlibs(lua);
-	lua_getglobal(lua, "_G");
-	luaL_setfuncs(lua, printlib, 0);
-	lua_pop(lua, 1);
-
-	register_perlin(lua);
-
-#ifdef _WIN32
-	glfwSetWindowUserPointer(window, lua);
-#endif
-
-	static char execBuffer[1024 * 16] = "-- welcome to Dot - v0.1 \n\n"
-		"function all_whites()\n"
-		"	return 1 \n"
-		"end\n\n"
-		"function all_blacks()\n"
-		"	return 0\n"
-		"end\n\n"
-		"function main(x, y, frame)\n"
-		"	return all_whites()\n"
-		"end";
-
 
 	// Options parsing
-	cxxopts::Options options(argv[0], " - Command line options");
-	options.add_options()
-		("s,script", "Script", cxxopts::value<std::string>())
-		;
+	//cxxopts::Options options(argv[0], " - Command line options");
+	//options.add_options()
+	//	("s,script", "Script", cxxopts::value<std::string>())
+	//	;
 
-	auto result = options.parse(argc, argv);
+	//auto result = options.parse(argc, argv);
 
-	if (result.count("script"))
-	{
-		auto& script = result["s"].as<std::string>();
-		std::ifstream file(script);
-		if (file)
-		{
-			memset(&execBuffer[0], 0, sizeof(char) * 1024 * 16);
-			file.seekg(0, std::ios::end);
-			std::streampos length = file.tellg();
-			file.seekg(0, std::ios::beg);
-			file.read(&execBuffer[0], length);
-			filepath = script;
-		}
-	}
+	//if (result.count("script"))
+	//{
+	//	auto& script = result["s"].as<std::string>();
+	//	std::ifstream file(script);
+	//	if (file)
+	//	{
+	//		memset(&execBuffer[0], 0, sizeof(char) * 1024 * 16);
+	//		file.seekg(0, std::ios::end);
+	//		std::streampos length = file.tellg();
+	//		file.seekg(0, std::ios::beg);
+	//		file.read(&execBuffer[0], length);
+	//		filepath = script;
+	//	}
+	//}
 
 #ifndef _WIN32
 	serial::Serial serial("/dev/ttyUSB0", 9600, serial::Timeout::simpleTimeout(1000));
@@ -382,10 +371,10 @@ int main(int argc, char* argv[])
 		ImGui::NewFrame();
 		{
 			ImGui::SetNextWindowPos(ImVec2(35, 20), ImGuiCond_Always, ImVec2(0, 0));
-			ImGui::SetNextWindowSize(ImVec2(400, 465), ImGuiCond_Always);
-			ImGui::Begin("TextEdit", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+			ImGui::SetNextWindowSize(ImVec2(500, 465), ImGuiCond_Always);
+			ImGui::Begin("TextEdit", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
 			{
-				if (ImGui::InputTextMultiline("", editBuffer, IM_ARRAYSIZE(editBuffer), ImVec2(-FLT_MIN, 420), ImGuiInputTextFlags_AllowTabInput))
+				if (ImGui::InputTextMultiline("", editBuffer, IM_ARRAYSIZE(editBuffer), ImVec2(-FLT_MIN, 500), ImGuiInputTextFlags_AllowTabInput))
 				{
 					unsavedModifications = true;
 				}
@@ -419,7 +408,7 @@ int main(int argc, char* argv[])
 			ImGui::SetNextWindowPos(ImVec2(424, 0), ImGuiCond_Always, ImVec2(0, 0));
 			ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_Always);
 
-			ImGui::Begin("Preview", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+			ImGui::Begin("Preview", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 			{
 				float radius = 8.0f;
 				float dradius = radius * 2.0f;
@@ -460,18 +449,6 @@ int main(int argc, char* argv[])
 		prev_time = time;
 	}
 
-	// Clean-up lua
-	lua_close(lua);
-
-#ifdef _WIN32
-	// Clean-up imgui
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-	// Clean-up GLFW
-	glfwDestroyWindow(window);
-#endif
-	glfwTerminate();
 
 	return 0;
-}
+}*/

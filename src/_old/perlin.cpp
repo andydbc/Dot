@@ -76,7 +76,7 @@ double perlin::grad(int hash, double x, double y, double z) {
 	return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
 }
 
-extern "C" {
+/*extern "C" {
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
@@ -110,4 +110,4 @@ void register_perlin(lua_State* lua)
 	lua_getglobal(lua, "_G");
 	luaL_setfuncs(lua, perlinlib, 0);
 	lua_pop(lua, 1);
-}
+}*/

@@ -1,10 +1,15 @@
 #pragma once
 
-namespace dot
+#include "common.h"
+#include "window.h"
+
+DOT_NS_BEGIN
+
+class view
 {
-	class view
-	{
-	public:
-		view() {}
-	};
-}
+public:
+	virtual void initialize() { }
+	virtual void on_render(window& w) { }
+};
+
+DOT_NS_END
