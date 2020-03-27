@@ -42,7 +42,7 @@ auto parse_options(int argc, char* argv[])
 		std::string arg = argv[i];
 		if (arg == "-s")
 		{
-			if (i + i < argc)
+			if (i + 1 < argc)
 			{
 				options[arg] = argv[i+1];
 			}
