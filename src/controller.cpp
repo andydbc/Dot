@@ -81,8 +81,47 @@ void controller::send_to_hardware()
 {
 	if (!_serial.isOpen())
 	{
-		//_serial("/dev/ttyUSB0", 9600, serial::Timeout::simpleTimeout(1000));
+		_serial.setPort(_hardware.port);
+		_serial.setBaudrate(9600);
+		_serial.setTimeout(serial::Timeout::simpleTimeout(1000));
 	}
+
+	/*int panel_width = 7;
+	int num_panels = pixel_rows / panel_width;
+
+	for (int p = 0; p < num_panels; ++p)
+	{
+		int panel = p;
+
+		std::bitset<8> panelmask;
+		panelmask[(num_panels - 1) - panel] = 1;
+
+		std::vector<unsigned char> msg;
+		msg.push_back(0x80);
+		msg.push_back(0x83);
+		msg.push_back((unsigned char)panelmask.to_ulong());
+
+		for (uint32_t y = 0; y < pixel_columns; ++y)
+		{
+			std::bitset<8> bitmask;
+
+			for (uint32_t x = 0; x < pixel_rows / 2; ++x)
+			{
+				int xx = x + (panel_width * panel);
+				bitmask[x] = _display.get_pixel(xx, y);
+			}
+
+			unsigned long i = bitmask.to_ulong();
+			msg.push_back((unsigned char)i);
+
+		}
+
+		msg.push_back(0x8F);
+#ifndef _WIN32
+		serial.write(&msg[0], msg.size());
+#endif
+	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));*/
 }
 
 DOT_NS_END
