@@ -7,7 +7,7 @@
 #include <iostream>
 #include <map>
 
-std::string window_title = "Dot v";
+std::string window_title = "Dot v" DOT_VERSION_STR;
 int window_width = 1024;
 int window_height = 600;
 bool refresh = false;
