@@ -8,7 +8,7 @@
 #include <map>
 
 std::string window_title = "Dot v" DOT_VERSION_STR;
-int window_width = 1024;
+int window_width = 1200;
 int window_height = 600;
 bool refresh = false;
 
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 {
 	auto options = parse_options(argc, argv);
 
-	dot::hardware hardware = { 14, 24, "/dev/ttyUSB0" };
+	dot::hardware hardware = { 14, 28, "/dev/ttyUSB0" };
 	dot::controller controller(hardware);
 
 	auto scriptIt = options.find("-s");

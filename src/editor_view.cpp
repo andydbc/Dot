@@ -4,18 +4,21 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-void editor_view::initialize()
+void editor_view::initialize(dot::window& w)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("resources/input_mono_regular.ttf", 20.0f);
+	io.Fonts->AddFontFromFileTTF("resources/input_mono_regular.ttf", 18.0f);
+
+	ImVec4 bg_color = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	w.set_clear_color(dot::color { bg_color.x, bg_color.y, bg_color.z, 1.0 });
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
 	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
 	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
-	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	style.Colors[ImGuiCol_WindowBg] = bg_color;
+	style.Colors[ImGuiCol_ChildBg] = bg_color;
+	style.Colors[ImGuiCol_FrameBg] = bg_color;
 	style.Colors[ImGuiCol_Button] = ImVec4(0.65f, 0.65f, 0.65f, 1.0f);
 	style.ScrollbarRounding = 0;
 	style.WindowBorderSize = 0;
@@ -24,9 +27,6 @@ void editor_view::initialize()
 
 void editor_view::on_render(dot::window& w)
 {
-	dot::color clear_color = { 0.06, 0.06, 0.06, 1.0 };
-	w.set_clear_color(clear_color);
-
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -47,7 +47,7 @@ void editor_view::on_render(dot::window& w)
 	ImGui::Begin("Info", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 	{
 		std::string filename = "Untitled";
-		ImVec4 col = ImVec4(0.26f, 0.26f, 0.26f, 1.0f);
+		ImVec4 col = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
 
 		ImGui::PushStyleColor(ImGuiCol_Text, col);
 		ImGui::LabelText("", filename.c_str());
@@ -62,7 +62,7 @@ void editor_view::on_render(dot::window& w)
 		ImGui::End();
 	}
 
-	ImGui::SetNextWindowPos(ImVec2(424, 0), ImGuiCond_Always, ImVec2(0, 0));
+	ImGui::SetNextWindowPos(ImVec2(550, 0), ImGuiCond_Always, ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_Always);
 
 	ImGui::Begin("Preview", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
@@ -91,10 +91,10 @@ void editor_view::on_render(dot::window& w)
 				float y = (wp.y + dradius) + j * (dradius + padding) + ws.y * 0.5f - height * 0.5f;
 
 				ImColor color_on = ImColor(0.8f, 0.8f, 0.8f);
-				ImColor color_off = ImColor(0.3f, 0.3f, 0.3f);
+				ImColor color_off = ImColor(0.25f, 0.25f, 0.25f);
 
 				int idx = i + rows * j;
-				draw_list->AddCircleFilled(ImVec2(x, y - 20), radius, pixels[idx] ? color_on : color_off, 64);
+				draw_list->AddCircleFilled(ImVec2(x, y - 20), radius, pixels[idx] ? color_on : color_off, 32);
 			}
 		}
 

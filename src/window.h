@@ -38,7 +38,7 @@ public:
 		auto v = std::make_shared<R>(args...);
 		
 		_view = v;
-		_view->initialize();
+		_view->initialize(*this);
 
 		return v;
 	}
