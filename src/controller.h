@@ -35,8 +35,12 @@ public:
 		return _hardware;
 	}
 
-	const std::vector<bool> get_pixels() const {
+	const std::vector<bool>& get_pixels() const {
 		return _pixels;
+	}
+
+	const std::string& get_script_path() {
+		return _script_path;
 	}
 
 	void send_to_hardware();
@@ -46,7 +50,9 @@ private:
 	interpreter _interpreter;
 	std::vector<char> _script;
 	std::vector<bool> _pixels;
+	std::string _script_path;
 	int _frame_count;
+	bool _exec_sucess;
 
 	serial::Serial _serial;
 };

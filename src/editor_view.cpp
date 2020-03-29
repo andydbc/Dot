@@ -7,7 +7,7 @@
 void editor_view::initialize(dot::window& w)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("resources/input_mono_regular.ttf", 18.0f);
+	io.Fonts->AddFontFromFileTTF("resources/fonts/input_mono_regular.ttf", 18.0f);
 
 	ImVec4 bg_color = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
 	w.set_clear_color(dot::color { bg_color.x, bg_color.y, bg_color.z, 1.0 });
@@ -48,6 +48,19 @@ void editor_view::on_render(dot::window& w)
 	{
 		std::string filename = "Untitled";
 		ImVec4 col = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
+
+		auto script_path = _controller->get_script_path();
+		if (!script_path.empty())
+		{
+			const size_t last_slash_idx = script_path.find_last_of("\\/");
+			if (std::string::npos != last_slash_idx)
+			{
+				script_path.erase(0, last_slash_idx + 1);
+			}
+
+			col = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+			filename = script_path;
+		}
 
 		ImGui::PushStyleColor(ImGuiCol_Text, col);
 		ImGui::LabelText("", filename.c_str());

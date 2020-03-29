@@ -19,6 +19,10 @@ static const char* entry = "main";
 
 DOT_NS_BEGIN
 
+int Test() { return 2; }
+void Test2() { }
+float Test3() { return 0.2f; }
+
 controller::controller(hardware& hardware)
 {
 	_script.resize(buffer_length);
@@ -27,6 +31,11 @@ controller::controller(hardware& hardware)
 	_pixels.resize(hardware.rows * hardware.colums);
 	_hardware = hardware;
 
+	std::string packages = "package.path = package.path .. \";resources/scripts/?.lua\"";
+	_interpreter.run_from_memory(packages);
+	_interpreter.add("Test", &Test);
+	//_interpreter.add("Test2", &Test2);
+	_interpreter.add("Test3", &Test3);
 	_interpreter.run_from_memory(&_script[0]);
 }
 
@@ -34,7 +43,12 @@ void controller::execute(bool reload)
 {
 	if (reload)
 	{
-		_interpreter.run_from_memory(&_script[0]);
+		_exec_sucess = _interpreter.run_from_memory(&_script[0]);
+	}
+
+	if (!_exec_sucess)
+	{
+		return;
 	}
 
 	for (int j = 0; j < _hardware.colums; ++j)
@@ -46,7 +60,6 @@ void controller::execute(bool reload)
 			_pixels[idx] = value;
 		}
 	}
-
 	_frame_count++;
 }
 
@@ -60,6 +73,8 @@ void controller::from_file(const std::string& script)
 		std::streampos length = script_file.tellg();
 		script_file.seekg(0, std::ios::beg);
 		script_file.read(&_script[0], length);
+
+		_script_path = script;
 	}
 
 	execute(true);
@@ -84,6 +99,7 @@ void controller::send_to_hardware()
 		_serial.setPort(_hardware.port);
 		_serial.setBaudrate(9600);
 		_serial.setTimeout(serial::Timeout::simpleTimeout(1000));
+		_serial.open();
 	}
 
 	/*int panel_width = 7;
