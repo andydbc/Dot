@@ -9,13 +9,17 @@ void editor_view::initialize(dot::window& w)
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF("resources/fonts/input_mono_regular.ttf", 18.0f);
 
-	ImVec4 bg_color = ImVec4(0.06f, 0.06f, 0.06f, 1.0f);
+	ImVec4 bg_color = ImVec4(0.7f, 0.7f, 0.7f, 1.0f);
 	w.set_clear_color(dot::color { bg_color.x, bg_color.y, bg_color.z, 1.0 });
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.89f, 1.0f);
 	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
 	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarBg] = bg_color;
+	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
 	style.Colors[ImGuiCol_WindowBg] = bg_color;
 	style.Colors[ImGuiCol_ChildBg] = bg_color;
 	style.Colors[ImGuiCol_FrameBg] = bg_color;
@@ -47,7 +51,7 @@ void editor_view::on_render(dot::window& w)
 	ImGui::Begin("Info", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 	{
 		std::string filename = "Untitled";
-		ImVec4 col = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
+		ImVec4 col = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
 
 		auto script_path = _controller->get_script_path();
 		if (!script_path.empty())
@@ -58,7 +62,7 @@ void editor_view::on_render(dot::window& w)
 				script_path.erase(0, last_slash_idx + 1);
 			}
 
-			col = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+			col = ImVec4(0.95f, 0.95f, 0.95f, 1.0f);
 			filename = script_path;
 		}
 
@@ -103,8 +107,8 @@ void editor_view::on_render(dot::window& w)
 				float x = (wp.x + dradius) + i * (dradius + padding) + ws.x * 0.5f - width * 0.5f;
 				float y = (wp.y + dradius) + j * (dradius + padding) + ws.y * 0.5f - height * 0.5f;
 
-				ImColor color_on = ImColor(0.8f, 0.8f, 0.8f);
-				ImColor color_off = ImColor(0.25f, 0.25f, 0.25f);
+				ImColor color_on = ImColor(1.0f, 1.0f, 1.0f);
+				ImColor color_off = ImColor(0.76f, 0.76f, 0.76f);
 
 				int idx = i + rows * j;
 				draw_list->AddCircleFilled(ImVec2(x, y - 20), radius, pixels[idx] ? color_on : color_off, 32);

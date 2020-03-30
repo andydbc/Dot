@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 {
 	auto options = parse_options(argc, argv);
 
-	dot::hardware hardware = { 28, 28, "/dev/ttyUSB0" };
+	dot::hardware hardware = { 14, 28, "/dev/ttyUSB0" };
 	dot::controller controller(hardware);
 
 	auto scriptIt = options.find("-s");
