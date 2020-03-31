@@ -38,11 +38,11 @@ void editor_view::on_render(dot::window& w)
 	ImGui::NewFrame();
 	{
 		ImGui::SetNextWindowPos(ImVec2(35, 20), ImGuiCond_Always, ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(500, 465), ImGuiCond_Always);
-		ImGui::Begin("TextEdit", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+		ImGui::SetNextWindowSize(ImVec2(500, 450), ImGuiCond_Always);
+		ImGui::Begin("TextEdit", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
 		{
 			_controller->get_script(_buffer);
-			if(ImGui::InputTextMultiline("", &_buffer[0], _buffer.size(), ImVec2(500, 500), ImGuiInputTextFlags_AllowTabInput))
+			if(ImGui::InputTextMultiline("", &_buffer[0], _buffer.size(), ImVec2(500, 450), ImGuiInputTextFlags_AllowTabInput))
 				_has_changes = true;
 			ImGui::End();
 			_controller->set_script(_buffer);
@@ -116,7 +116,7 @@ void editor_view::on_render(dot::window& w)
 				float y = (wp.y + dradius) + j * (dradius + padding) + ws.y * 0.5f - height * 0.5f;
 
 				ImColor color_on = ImColor(1.0f, 1.0f, 1.0f);
-				ImColor color_off = ImColor(0.76f, 0.76f, 0.76f);
+				ImColor color_off = ImColor(0.84f, 0.84f, 0.84f);
 
 				int idx = i + rows * j;
 				draw_list->AddCircleFilled(ImVec2(x, y - 20), radius, pixels[idx] ? color_on : color_off, 32);

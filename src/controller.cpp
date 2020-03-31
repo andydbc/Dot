@@ -1,5 +1,6 @@
 #include "controller.h"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 
@@ -98,7 +99,8 @@ void controller::save_script()
 	{
 		std::ofstream script;
 		script.open(_script_path);
-		script.write(&_script[0], _script.size());
+		auto it = std::find(_script.begin(), _script.end(), '\0');
+		script.write(&_script[0], std::distance(_script.begin(), it));
 		script.close();
 	}
 }
