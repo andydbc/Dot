@@ -92,6 +92,17 @@ void controller::set_script(std::vector<char>& buffer)
 	memcpy(&_script[0], &buffer[0], buffer.size());
 }
 
+void controller::save_script()
+{
+	if (!_script_path.empty())
+	{
+		std::ofstream script;
+		script.open(_script_path);
+		script.write(&_script[0], _script.size());
+		script.close();
+	}
+}
+
 void controller::send_to_hardware()
 {
 	if (!_serial.isOpen())

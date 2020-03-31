@@ -43,6 +43,12 @@ public:
 		return v;
 	}
 
+	template<class R>
+	std::shared_ptr<R> get_view()
+	{
+		return std::static_pointer_cast<R>(_view);
+	}
+
 	void set_clear_color(const color& c) {
 		_clear_color = c;
 	}

@@ -27,6 +27,8 @@ void editor_view::initialize(dot::window& w)
 	style.ScrollbarRounding = 0;
 	style.WindowBorderSize = 0;
 	style.WindowRounding = 0;
+
+	_has_changes = false;
 }
 
 void editor_view::on_render(dot::window& w)
@@ -37,10 +39,11 @@ void editor_view::on_render(dot::window& w)
 	{
 		ImGui::SetNextWindowPos(ImVec2(35, 20), ImGuiCond_Always, ImVec2(0, 0));
 		ImGui::SetNextWindowSize(ImVec2(500, 465), ImGuiCond_Always);
-		ImGui::Begin("TextEdit", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
+		ImGui::Begin("TextEdit", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 		{
 			_controller->get_script(_buffer);
-			ImGui::InputTextMultiline("", &_buffer[0], _buffer.size(), ImVec2(500, 500), ImGuiInputTextFlags_AllowTabInput);
+			if(ImGui::InputTextMultiline("", &_buffer[0], _buffer.size(), ImVec2(500, 500), ImGuiInputTextFlags_AllowTabInput))
+				_has_changes = true;
 			ImGui::End();
 			_controller->set_script(_buffer);
 		}
@@ -60,6 +63,11 @@ void editor_view::on_render(dot::window& w)
 			if (std::string::npos != last_slash_idx)
 			{
 				script_path.erase(0, last_slash_idx + 1);
+			}
+
+			if (_has_changes)
+			{
+				script_path += '*';
 			}
 
 			col = ImVec4(0.95f, 0.95f, 0.95f, 1.0f);
@@ -117,4 +125,10 @@ void editor_view::on_render(dot::window& w)
 
 		ImGui::End();
 	}
+}
+
+void editor_view::on_save()
+{
+	_controller->save_script();
+	_has_changes = false;
 }

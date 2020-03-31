@@ -25,6 +25,8 @@ void on_key(dot::window& w, int action, int mod, int key)
 			w.close();
 		if (key == GLFW_KEY_F5)
 			refresh = true;
+		if (mod == GLFW_MOD_CONTROL && key == GLFW_KEY_S)
+			w.get_view<editor_view>().get()->on_save();
 	}
 }
 

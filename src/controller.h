@@ -31,18 +31,14 @@ public:
 	void get_script(std::vector<char>& buffer);
 	void set_script(std::vector<char>& buffer);
 
-	hardware& get_hardware() {
-		return _hardware;
-	}
-
 	const std::vector<bool>& get_pixels() const {
 		return _pixels;
 	}
 
-	const std::string& get_script_path() {
-		return _script_path;
-	}
+	const std::string& get_script_path() { return _script_path; }
+	void save_script();
 
+	hardware& get_hardware() { return _hardware; }
 	void send_to_hardware();
 
 private:
