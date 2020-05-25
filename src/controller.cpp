@@ -20,10 +20,6 @@ static const char* entry = "main";
 
 DOT_NS_BEGIN
 
-int Test() { return 2; }
-void Test2() { }
-float Test3() { return 0.2f; }
-
 controller::controller(hardware& hardware)
 {
 	_script.resize(buffer_length);
@@ -34,9 +30,6 @@ controller::controller(hardware& hardware)
 
 	std::string packages = "package.path = package.path .. \";resources/scripts/?.lua\"";
 	_interpreter.run_from_memory(packages);
-	_interpreter.add("Test", &Test);
-	//_interpreter.add("Test2", &Test2);
-	_interpreter.add("Test3", &Test3);
 	_interpreter.run_from_memory(&_script[0]);
 }
 

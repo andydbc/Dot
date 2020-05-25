@@ -28,8 +28,8 @@ add_executable(Dot ${PROJECT_FILES} ${IMGUI_SOURCES})
 # add libraries
 target_link_libraries(Dot glfw ${GLFW_LIBRARIES} glad lua serial)
 
-#if(UNIX)
-#    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} rt pthread ${GTK3_LIBRARIES})
-#else()
-#    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} setupapi)
-#endif()
+if(MSVC)
+    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} Setupapi)
+else()
+    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} rt pthread ${GTK3_LIBRARIES})
+endif()

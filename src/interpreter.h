@@ -89,7 +89,7 @@ private:
 	template<>
 	int get() 
 	{ 
-		int value = lua_tointeger(_lua.get(), -1);
+		int value = (int)lua_tointeger(_lua.get(), -1);
 		lua_pop(_lua.get(), 1);
 		return value;
 	}
@@ -97,7 +97,7 @@ private:
 	template<>
 	float get()
 	{
-		float value = lua_tonumber(_lua.get(), -1);
+		float value = (float)lua_tonumber(_lua.get(), -1);
 		lua_pop(_lua.get(), 1);
 		return value;
 	}

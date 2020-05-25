@@ -4,10 +4,24 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <string>
+#include <fstream>
+
+bool file_exist(const std::string& path)
+{
+	const std::ifstream file(path.c_str());
+	return file.good();
+}
+
 void editor_view::initialize(dot::window& w)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("resources/fonts/input_mono_regular.ttf", 18.0f);
+
+	const std::string font("resources/fonts/input_mono_regular.ttf");
+	if (file_exist(font))
+	{
+		io.Fonts->AddFontFromFileTTF(font.c_str(), 20.0f);
+	}
 
 	ImVec4 bg_color = ImVec4(0.7f, 0.7f, 0.7f, 1.0f);
 	w.set_clear_color(dot::color { bg_color.x, bg_color.y, bg_color.z, 1.0 });
