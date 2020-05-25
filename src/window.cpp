@@ -63,6 +63,20 @@ void window::close()
 	glfwSetWindowShouldClose(_window.get(), true);
 }
 
+int window::get_width()
+{
+	int w, h;
+	glfwGetWindowSize(_window.get(), &w, &h);
+	return w;
+}
+
+int window::get_height()
+{
+	int w, h;
+	glfwGetWindowSize(_window.get(), &w, &h);
+	return h;
+}
+
 void window::render()
 {
 	glfwPollEvents();

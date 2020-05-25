@@ -3,12 +3,11 @@
 #include "editor_view.h"
 
 #include <bitset>
-#include <fstream>
 #include <iostream>
 #include <map>
 
-std::string window_title = "Dot v" DOT_VERSION_STR;
-int window_width = 1200;
+std::string window_title = "Dot";
+int window_width = 1000;
 int window_height = 600;
 bool refresh = false;
 
@@ -55,10 +54,16 @@ auto parse_options(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+	auto devices = serial::list_ports();
 	auto options = parse_options(argc, argv);
 
-	dot::hardware hardware = { 14, 28, "/dev/ttyUSB0" };
-	dot::controller controller(hardware);
+	dot::hardware hardware = { 14, 28, "" };
+	dot::controller controller;
+	
+	if (!devices.empty())
+		hardware.port = devices[0].port;
+
+	controller.set_hardware(hardware);
 
 	auto scriptIt = options.find("-s");
 	if (scriptIt != options.end())
@@ -86,6 +91,7 @@ int main(int argc, char* argv[])
 		}
 
 		window.render();
+		controller.send_to_hardware();
 	}
 
 	return 0;

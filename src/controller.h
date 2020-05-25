@@ -22,10 +22,13 @@ class controller
 {
 public:
 
+	controller();
 	controller(hardware& description);
 
 	void execute(bool reload = false);
 
+	void set_hardware(const hardware& h);
+	
 	void from_file(const std::string& script);
 
 	void get_script(std::vector<char>& buffer);
@@ -42,6 +45,7 @@ public:
 	void send_to_hardware();
 
 private:
+	
 	hardware _hardware;
 	interpreter _interpreter;
 	std::vector<char> _script;

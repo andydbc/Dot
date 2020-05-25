@@ -27,9 +27,10 @@ void editor_view::initialize(dot::window& w)
 	w.set_clear_color(dot::color { bg_color.x, bg_color.y, bg_color.z, 1.0 });
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.15f, 0.15f, 0.89f, 1.0f);
+	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.89f, 1.0f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
 	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
-	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
 	style.Colors[ImGuiCol_ScrollbarBg] = bg_color;
 	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
 	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
@@ -44,6 +45,8 @@ void editor_view::initialize(dot::window& w)
 
 	_has_changes = false;
 }
+
+float t = 0;
 
 void editor_view::on_render(dot::window& w)
 {
@@ -63,7 +66,7 @@ void editor_view::on_render(dot::window& w)
 		}
 	}
 
-	ImGui::SetNextWindowPos(ImVec2(35, 500), ImGuiCond_Always, ImVec2(0, 0));
+	ImGui::SetNextWindowPos(ImVec2(35, 525), ImGuiCond_Always, ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Always);
 	ImGui::Begin("Info", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 	{
@@ -91,18 +94,11 @@ void editor_view::on_render(dot::window& w)
 		ImGui::PushStyleColor(ImGuiCol_Text, col);
 		ImGui::LabelText("", filename.c_str());
 		ImGui::PopStyleColor();
-
-		ImDrawList* draw_list = ImGui::GetWindowDrawList();
-		ImVec2 wp = ImGui::GetWindowPos();
-
-		dot::color white = dot::color::white;
-		ImColor color = ImColor(white.r, white.g, white.b, white.a);
-		draw_list->AddCircleFilled(ImVec2(wp.x + 20, wp.y + 55), 12.0f, color, 64);
 		ImGui::End();
 	}
 
-	ImGui::SetNextWindowPos(ImVec2(550, 0), ImGuiCond_Always, ImVec2(0, 0));
-	ImGui::SetNextWindowSize(ImVec2(600, 600), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2(550, 25), ImGuiCond_Always, ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(400, 550), ImGuiCond_Always);
 
 	ImGui::Begin("Preview", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	{
@@ -133,10 +129,39 @@ void editor_view::on_render(dot::window& w)
 				ImColor color_off = ImColor(0.84f, 0.84f, 0.84f);
 
 				int idx = i + rows * j;
-				draw_list->AddCircleFilled(ImVec2(x, y - 20), radius, pixels[idx] ? color_on : color_off, 32);
+				draw_list->AddCircleFilled(ImVec2(x, y - 20)
+					, radius
+					, pixels[idx] ? color_on : color_off
+					, 32
+				);
 			}
 		}
 
+		ImGui::End();
+	}
+
+	ImGui::SetNextWindowPos(ImVec2(w.get_width()-10, 0), ImGuiCond_Always, ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(10, 600), ImGuiCond_Always);
+	
+	ImGui::Begin("Timeline", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+	{
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+		ImVec2 wp = ImGui::GetWindowPos();
+		ImVec2 ws = ImGui::GetWindowSize();
+
+		int timeline = (((int)t % 100) / 100.0f) * 600.0f;
+		
+		auto col = ImColor(0.89f, 1.0f, 0.0f, 1.0f);
+		draw_list->AddQuadFilled(wp
+			, ImVec2(wp.x, timeline)
+			, ImVec2(wp.x + 10, timeline)
+			, ImVec2(wp.x + 10, wp.y)
+			, col
+		);
+
+		t++;
+		
 		ImGui::End();
 	}
 }

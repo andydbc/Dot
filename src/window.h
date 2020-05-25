@@ -32,6 +32,9 @@ public:
 	bool is_open();
 	void events();
 
+	int get_width();
+	int get_height();
+	
 	template<class R, typename ...Ts>
 	std::shared_ptr<R> set_view(Ts... args) 
 	{

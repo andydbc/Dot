@@ -1,8 +1,9 @@
 #include "controller.h"
 
 #include <algorithm>
+#include <bitset>
 #include <fstream>
-#include <iostream>
+#include <thread>
 
 static size_t buffer_length = 1024 * 10;
 static char defaultScript[1024] = "-- welcome to Dot - v0.1 \n\n"
@@ -20,17 +21,32 @@ static const char* entry = "main";
 
 DOT_NS_BEGIN
 
-controller::controller(hardware& hardware)
+controller::controller()
 {
 	_script.resize(buffer_length);
 	memcpy(&_script[0], &defaultScript[0], buffer_length);
 
+	std::string packages = "package.path = package.path .. \";resources/scripts/?.lua\"";
+	_interpreter.run_from_memory(packages);
+	_interpreter.run_from_memory(&_script[0]);
+
+	_frame_count = 0;
+}
+
+
+controller::controller(hardware& hardware)
+{
 	_pixels.resize(hardware.rows * hardware.colums);
 	_hardware = hardware;
+	
+	_script.resize(buffer_length);
+	memcpy(&_script[0], &defaultScript[0], buffer_length);
 
 	std::string packages = "package.path = package.path .. \";resources/scripts/?.lua\"";
 	_interpreter.run_from_memory(packages);
 	_interpreter.run_from_memory(&_script[0]);
+
+	_frame_count = 0;
 }
 
 void controller::execute(bool reload)
@@ -56,6 +72,13 @@ void controller::execute(bool reload)
 	}
 	_frame_count++;
 }
+
+void controller::set_hardware(const hardware& h)
+{
+	_pixels.resize(h.rows * h.colums);
+	_hardware = h;
+}
+
 
 void controller::from_file(const std::string& script)
 {
@@ -100,6 +123,9 @@ void controller::save_script()
 
 void controller::send_to_hardware()
 {
+	if (_hardware.port.empty())
+		return;
+	
 	if (!_serial.isOpen())
 	{
 		_serial.setPort(_hardware.port);
@@ -108,8 +134,8 @@ void controller::send_to_hardware()
 		_serial.open();
 	}
 
-	/*int panel_width = 7;
-	int num_panels = pixel_rows / panel_width;
+	int panel_width = 7;
+	int num_panels = _hardware.rows / panel_width;
 
 	for (int p = 0; p < num_panels; ++p)
 	{
@@ -123,14 +149,15 @@ void controller::send_to_hardware()
 		msg.push_back(0x83);
 		msg.push_back((unsigned char)panelmask.to_ulong());
 
-		for (uint32_t y = 0; y < pixel_columns; ++y)
+		for (uint32_t y = 0; y < _hardware.colums; ++y)
 		{
 			std::bitset<8> bitmask;
 
-			for (uint32_t x = 0; x < pixel_rows / 2; ++x)
+			for (uint32_t x = 0; x < _hardware.rows / 2; ++x)
 			{
 				int xx = x + (panel_width * panel);
-				bitmask[x] = _display.get_pixel(xx, y);
+				int idx = xx + _hardware.rows * y;
+				bitmask[x] = _pixels[idx];
 			}
 
 			unsigned long i = bitmask.to_ulong();
@@ -139,11 +166,10 @@ void controller::send_to_hardware()
 		}
 
 		msg.push_back(0x8F);
-#ifndef _WIN32
-		serial.write(&msg[0], msg.size());
-#endif
+		
+		_serial.write(&msg[0], msg.size());
 	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));*/
+	//std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 DOT_NS_END
