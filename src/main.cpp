@@ -2,7 +2,6 @@
 
 #include "editor_view.h"
 
-#include <bitset>
 #include <iostream>
 #include <map>
 
@@ -80,15 +79,16 @@ int main(int argc, char* argv[])
 	float timeInterval = 1.0f / 60.0f;
 	float lastTime = 0.0f;
 
+	std::vector<unsigned char> message;
+	int nBytes, i;
+	double stamp;
+	
 	while (window.is_open())
 	{
 		update(controller);
 		window.render();
 		controller.send_to_hardware();
-
-		while (glfwGetTime() < lastTime + timeInterval) {
-		}
-
+		while (glfwGetTime() < lastTime + timeInterval) { }
 		lastTime += timeInterval;
 	}
 

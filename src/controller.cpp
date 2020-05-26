@@ -23,6 +23,7 @@ DOT_NS_BEGIN
 
 controller::controller()
 {
+	open_midi();
 	_script.resize(buffer_length);
 	memcpy(&_script[0], &defaultScript[0], buffer_length);
 
@@ -33,9 +34,9 @@ controller::controller()
 	_frame_count = 0;
 }
 
-
 controller::controller(hardware& hardware)
 {
+	open_midi();
 	_pixels.resize(hardware.rows * hardware.colums);
 	_hardware = hardware;
 	
@@ -47,6 +48,14 @@ controller::controller(hardware& hardware)
 	_interpreter.run_from_memory(&_script[0]);
 
 	_frame_count = 0;
+}
+
+void controller::open_midi()
+{
+	unsigned int ports_count = _midi.getPortCount();
+
+	if (ports_count > 0)
+		_midi.openPort(0);
 }
 
 void controller::execute(bool reload)
@@ -71,6 +80,14 @@ void controller::execute(bool reload)
 		}
 	}
 	_frame_count++;
+
+	std::vector<unsigned char> msg;
+	_midi.getMessage(&msg);
+	int nBytes = msg.size();
+	if(nBytes == 3)
+	{
+		_interpreter.call<void>("on_midi_input", msg[0], msg[1]);
+	}
 }
 
 void controller::set_hardware(const hardware& h)

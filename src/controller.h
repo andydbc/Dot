@@ -3,9 +3,9 @@
 #include "common.h"
 #include "interpreter.h"
 
+#include "RtMidi.h"
 #include <serial/serial.h>
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -27,6 +27,7 @@ public:
 
 	void execute(bool reload = false);
 
+	void open_midi();
 	void set_hardware(const hardware& h);
 	
 	void from_file(const std::string& script);
@@ -34,7 +35,8 @@ public:
 	void get_script(std::vector<char>& buffer);
 	void set_script(std::vector<char>& buffer);
 
-	const std::vector<bool>& get_pixels() const {
+	const std::vector<bool>& get_pixels() const
+	{
 		return _pixels;
 	}
 
@@ -55,6 +57,7 @@ private:
 	bool _exec_sucess;
 
 	serial::Serial _serial;
+	RtMidiIn _midi;
 };
 
 DOT_NS_END

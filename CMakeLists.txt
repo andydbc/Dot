@@ -25,11 +25,13 @@ file(GLOB IMGUI_SOURCES "external/imgui/src/*.cpp")
 source_group("external" FILES ${IMGUI_SOURCES})
 add_executable(Dot ${PROJECT_FILES} ${IMGUI_SOURCES})
 
+target_compile_definitions(Dot PRIVATE "-D__WINDOWS_MM__")
+
 # add libraries
 target_link_libraries(Dot glfw ${GLFW_LIBRARIES} glad lua serial)
 
 if(MSVC)
-    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} Setupapi)
+    target_link_libraries(Dot glfw ${GLFW_LIBRARIES} Setupapi winmm)
 else()
     target_link_libraries(Dot glfw ${GLFW_LIBRARIES} rt pthread ${GTK3_LIBRARIES})
 endif()
