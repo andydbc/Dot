@@ -149,27 +149,23 @@ void controller::send_to_hardware()
 		msg.push_back(0x83);
 		msg.push_back((unsigned char)panelmask.to_ulong());
 
-		for (uint32_t y = 0; y < _hardware.colums; ++y)
+		for (int32_t y = 0; y < _hardware.colums; ++y)
 		{
 			std::bitset<8> bitmask;
 
-			for (uint32_t x = 0; x < _hardware.rows / 2; ++x)
+			for(int i = 0; i < panel_width; ++i)
 			{
-				int xx = x + (panel_width * panel);
-				int idx = xx + _hardware.rows * y;
-				bitmask[x] = _pixels[idx];
+				int idx = (i + _hardware.rows * y) + panel_width * p;
+				bitmask[i] = _pixels[idx];
 			}
 
-			unsigned long i = bitmask.to_ulong();
-			msg.push_back((unsigned char)i);
-
+			unsigned long b = bitmask.to_ulong();
+			msg.push_back((unsigned char)b);
 		}
 
 		msg.push_back(0x8F);
-		
 		_serial.write(&msg[0], msg.size());
 	}
-	//std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 DOT_NS_END

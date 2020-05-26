@@ -77,21 +77,19 @@ int main(int argc, char* argv[])
 	window.initialize(window_width, window_height, window_title, on_key, on_error);
 	window.set_view<editor_view>(&controller);
 	
-	float timeInterval = 1.0f / 30.0f;
-	float time = 0.0f;
+	float timeInterval = 1.0f / 60.0f;
+	float lastTime = 0.0f;
 
 	while (window.is_open())
 	{
-		time += glfwGetTime();
-
-		if (time > timeInterval)
-		{
-			update(controller);
-			time = 0.0f;
-		}
-
+		update(controller);
 		window.render();
 		controller.send_to_hardware();
+
+		while (glfwGetTime() < lastTime + timeInterval) {
+		}
+
+		lastTime += timeInterval;
 	}
 
 	return 0;
