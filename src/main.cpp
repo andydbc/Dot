@@ -77,12 +77,8 @@ int main(int argc, char* argv[])
 	window.set_view<editor_view>(&controller);
 	
 	float timeInterval = 1.0f / 60.0f;
-	float lastTime = 0.0f;
+	float lastTime = glfwGetTime();
 
-	std::vector<unsigned char> message;
-	int nBytes, i;
-	double stamp;
-	
 	while (window.is_open())
 	{
 		update(controller);
