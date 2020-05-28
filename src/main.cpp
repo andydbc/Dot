@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 	{
 		update(controller);
 		window.render();
-		controller.send_to_hardware();
+		controller.send();
 		while (glfwGetTime() < lastTime + timeInterval) { }
 		lastTime += timeInterval;
 	}

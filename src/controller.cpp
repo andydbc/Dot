@@ -138,7 +138,7 @@ void controller::save_script()
 	}
 }
 
-void controller::send_to_hardware()
+void controller::send()
 {
 	if (_hardware.port.empty())
 		return;

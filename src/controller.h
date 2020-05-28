@@ -44,8 +44,10 @@ public:
 	void save_script();
 
 	hardware& get_hardware() { return _hardware; }
-	void send_to_hardware();
-
+	interpreter& get_interpreter() { return _interpreter; }
+	
+	void send();
+	
 private:
 	
 	hardware _hardware;
