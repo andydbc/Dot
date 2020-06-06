@@ -1,4 +1,4 @@
 Dot
 ==========
 
- ![screenshot](http://andbc.co/media/Dot-1.gif)
+![screenshot](images/Dot-1.gif)
