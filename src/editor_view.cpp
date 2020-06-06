@@ -91,6 +91,7 @@ void editor_view::on_render(dot::window& w)
 			filename = script_path;
 		}
 
+		col = ImColor(0.89f, 1.0f, 0.0f, 1.0f);
 		ImGui::PushStyleColor(ImGuiCol_Text, col);
 		ImGui::LabelText("", filename.c_str());
 		ImGui::PopStyleColor();
@@ -140,8 +141,8 @@ void editor_view::on_render(dot::window& w)
 		ImGui::End();
 	}
 
-	ImGui::SetNextWindowPos(ImVec2(w.get_width()-10, 0), ImGuiCond_Always, ImVec2(0, 0));
-	ImGui::SetNextWindowSize(ImVec2(10, 600), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2(-10, 0), ImGuiCond_Always, ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(w.get_width(), 5), ImGuiCond_Always);
 	
 	ImGui::Begin("Timeline", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	{
@@ -150,13 +151,13 @@ void editor_view::on_render(dot::window& w)
 		ImVec2 wp = ImGui::GetWindowPos();
 		ImVec2 ws = ImGui::GetWindowSize();
 
-		int timeline = (((int)t % 100) / 100.0f) * 600.0f;
+		int timeline = (((int)t % 100) / 100.0f) * w.get_width();
 		
 		auto col = ImColor(0.89f, 1.0f, 0.0f, 1.0f);
 		draw_list->AddQuadFilled(wp
-			, ImVec2(wp.x, timeline)
-			, ImVec2(wp.x + 10, timeline)
-			, ImVec2(wp.x + 10, wp.y)
+			, ImVec2(timeline, wp.y)
+			, ImVec2(timeline, wp.y + 5)
+			, ImVec2(wp.x, wp.y + 5)
 			, col
 		);
 
