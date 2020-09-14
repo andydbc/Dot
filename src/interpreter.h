@@ -21,6 +21,28 @@ typedef State* StatePtr;
 
 DOT_NS_BEGIN
 
+namespace detail
+{
+	template<typename T>
+	inline T get(std::shared_ptr<State> _lua) { }
+	
+	template<>
+	inline int get<int>(std::shared_ptr<State> _lua) 
+	{ 
+		int value = (int)lua_tointeger(_lua.get(), -1);
+		lua_pop(_lua.get(), 1);
+		return value;
+	}
+
+	template<>
+	inline float get<float>(std::shared_ptr<State> _lua)
+	{
+		float value = (float)lua_tonumber(_lua.get(), -1);
+		lua_pop(_lua.get(), 1);
+		return value;
+	}
+}
+
 class interpreter
 {
 public:
@@ -36,7 +58,7 @@ public:
 		std::function<int(StatePtr state)> lambda;
 		lambda = [this, function](StatePtr state)
 		{	
-			To r = function(Ts...);
+			To r = function();
 			this->push(r);
 			return 1;
 		};
@@ -85,23 +107,7 @@ private:
 	void push(float v) { lua_pushnumber(_lua.get(), v); }
 
 	template<typename T>
-	T get() { }
-
-	template<>
-	int get() 
-	{ 
-		int value = (int)lua_tointeger(_lua.get(), -1);
-		lua_pop(_lua.get(), 1);
-		return value;
-	}
-
-	template<>
-	float get()
-	{
-		float value = (float)lua_tonumber(_lua.get(), -1);
-		lua_pop(_lua.get(), 1);
-		return value;
-	}
+	T get() { return detail::get<T>(_lua); }
 
 private:
 

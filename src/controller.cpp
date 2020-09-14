@@ -147,7 +147,8 @@ void controller::send()
 	{
 		_serial.setPort(_hardware.port);
 		_serial.setBaudrate(9600);
-		_serial.setTimeout(serial::Timeout::simpleTimeout(1000));
+		auto timeout = serial::Timeout::simpleTimeout(1000);
+		_serial.setTimeout(timeout);
 		_serial.open();
 	}
 
