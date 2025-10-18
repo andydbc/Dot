@@ -9,11 +9,12 @@ If a FlipDot device is connected, visuals are automatically sent through the fir
 
 ## Build MacOS
 
-``bash
+```bash
 mkdir build
 cd build
 cmake ..
-make``
+make
+```
 
 # Run Sample Script
 
