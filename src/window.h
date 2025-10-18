@@ -1,13 +1,12 @@
 #pragma once
 
 #include "common.h"
+#include "view.h"
 
 #include <memory>
 #include <string>
 
 DOT_NS_BEGIN
-
-class view;
 
 struct color
 {
@@ -20,6 +19,8 @@ struct color
 class window
 {
 public:
+
+	~window() { }
 
 	typedef void(onKey)(window&, int, int, int);
 	typedef void(onError)(int, const char*);
@@ -34,7 +35,7 @@ public:
 
 	int get_width();
 	int get_height();
-	
+
 	template<class R, typename ...Ts>
 	std::shared_ptr<R> set_view(Ts... args) 
 	{

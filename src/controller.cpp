@@ -23,7 +23,7 @@ DOT_NS_BEGIN
 
 controller::controller()
 {
-	open_midi();
+	//open_midi();
 	_script.resize(buffer_length);
 	memcpy(&_script[0], &defaultScript[0], buffer_length);
 
@@ -32,13 +32,14 @@ controller::controller()
 	_interpreter.run_from_memory(&_script[0]);
 
 	_frame_count = 0;
+	_width = 0;
+	_height = 0;
 }
 
-controller::controller(hardware& hardware)
+controller::controller(int width, int height)
 {
-	open_midi();
-	_pixels.resize(hardware.rows * hardware.colums);
-	_hardware = hardware;
+	//open_midi();
+	_pixels.resize(width * height);
 	
 	_script.resize(buffer_length);
 	memcpy(&_script[0], &defaultScript[0], buffer_length);
@@ -48,15 +49,17 @@ controller::controller(hardware& hardware)
 	_interpreter.run_from_memory(&_script[0]);
 
 	_frame_count = 0;
+	_width = width;
+	_height = height;
 }
 
-void controller::open_midi()
-{
-	unsigned int ports_count = _midi.getPortCount();
+// void controller::open_midi()
+// {
+// 	// unsigned int ports_count = _midi.getPortCount();
 
-	if (ports_count > 0)
-		_midi.openPort(0);
-}
+// 	// if (ports_count > 0)
+// 	// 	_midi.openPort(0);
+// }
 
 void controller::execute(bool reload)
 {
@@ -70,31 +73,31 @@ void controller::execute(bool reload)
 		return;
 	}
 
-	for (int j = 0; j < _hardware.colums; ++j)
+	for (int j = 0; j < _height; ++j)
 	{
-		for (int i = 0; i < _hardware.rows; ++i)
+		for (int i = 0; i < _width; ++i)
 		{
 			int value = _interpreter.call<int>(entry, i, j, _frame_count);
-			int idx = i + _hardware.rows * j;
+			int idx = i + _width * j;
 			_pixels[idx] = value;
 		}
 	}
 	_frame_count++;
 
 	std::vector<unsigned char> msg;
-	_midi.getMessage(&msg);
-	int nBytes = msg.size();
-	if(nBytes == 3)
-	{
-		_interpreter.call<void>("on_midi_input", msg[0], msg[1]);
-	}
+	// _midi.getMessage(&msg);
+	// int nBytes = msg.size();
+	// if(nBytes == 3)
+	// {
+	// 	_interpreter.call<void>("on_midi_input", msg[0], msg[1]);
+	// }
 }
 
-void controller::set_hardware(const hardware& h)
-{
-	_pixels.resize(h.rows * h.colums);
-	_hardware = h;
-}
+// void controller::set_hardware(const hardware& h)
+// {
+// 	_pixels.resize(h.rows * h.colums);
+// 	_hardware = h;
+// }
 
 
 void controller::from_file(const std::string& script)
@@ -138,22 +141,25 @@ void controller::save_script()
 	}
 }
 
-void controller::send()
+void controller::send(serial::Serial& serial)
 {
-	if (_hardware.port.empty())
-		return;
+	// if (_hardware.port.empty())
+	// 	return;
 	
-	if (!_serial.isOpen())
-	{
-		_serial.setPort(_hardware.port);
-		_serial.setBaudrate(9600);
-		auto timeout = serial::Timeout::simpleTimeout(1000);
-		_serial.setTimeout(timeout);
-		_serial.open();
-	}
+	// if (!_serial.isOpen())
+	// {
+	// 	_serial.setPort(_hardware.port);
+	// 	_serial.setBaudrate(9600);
+	// 	auto timeout = serial::Timeout::simpleTimeout(1000);
+	// 	_serial.setTimeout(timeout);
+	// 	_serial.open();
+	// }
+
+	if(!serial.isOpen())
+		return;
 
 	int panel_width = 7;
-	int num_panels = _hardware.rows / panel_width;
+	int num_panels = _width / panel_width;
 
 	for (int p = 0; p < num_panels; ++p)
 	{
@@ -167,13 +173,13 @@ void controller::send()
 		msg.push_back(0x83);
 		msg.push_back((unsigned char)panelmask.to_ulong());
 
-		for (int32_t y = 0; y < _hardware.colums; ++y)
+		for (int32_t y = 0; y < _height; ++y)
 		{
 			std::bitset<8> bitmask;
 
 			for(int i = 0; i < panel_width; ++i)
 			{
-				int idx = (i + _hardware.rows * y) + panel_width * p;
+				int idx = (i + _width * y) + panel_width * p;
 				bitmask[i] = _pixels[idx];
 			}
 
@@ -182,7 +188,7 @@ void controller::send()
 		}
 
 		msg.push_back(0x8F);
-		_serial.write(&msg[0], msg.size());
+		serial.write(&msg[0], msg.size());
 	}
 }
 

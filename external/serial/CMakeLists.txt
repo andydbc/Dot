@@ -1,11 +1,14 @@
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/external)
 project(serial)
 include_directories("include")
 file(GLOB srcs "include/serial/*.h" "src/*.cc")
 
-if(UNIX)
+if(APPLE)
+    list(APPEND srcs src/impl/unix.cc)
+    list(APPEND srcs src/impl/list_ports/list_ports_osx.cc)
+elseif(UNIX)
     list(APPEND srcs src/impl/unix.cc)
     list(APPEND srcs src/impl/list_ports/list_ports_linux.cc)
 else()

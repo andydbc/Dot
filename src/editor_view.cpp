@@ -107,13 +107,13 @@ void editor_view::on_render(dot::window& w)
 		float dradius = radius * 2.0f;
 		float padding = 2.0f;
 
-		dot::hardware& hw = _controller->get_hardware();
+		// dot::hardware& hw = _controller->get_hardware();
 		auto& pixels = _controller->get_pixels();
 
-		int rows = hw.rows;
-		int colums = hw.colums;
-		int width = hw.rows * (dradius + padding);
-		int height = hw.colums * (dradius + padding);
+		int rows = _controller->get_width();
+		int colums = _controller->get_height();
+		int width = rows * (dradius + padding);
+		int height = colums * (dradius + padding);
 
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 		ImVec2 wp = ImGui::GetWindowPos();

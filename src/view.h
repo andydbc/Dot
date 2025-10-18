@@ -1,9 +1,10 @@
 #pragma once
 
 #include "common.h"
-#include "window.h"
 
 DOT_NS_BEGIN
+
+class window;
 
 class view
 {

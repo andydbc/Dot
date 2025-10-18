@@ -353,3 +353,7 @@ MigrationBackup/
 build
 cmake-build-debug
 cmake-build-release
+
+# Libraries
+external/**/*.a
+external/**/*.lib

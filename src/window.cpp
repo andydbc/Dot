@@ -47,7 +47,7 @@ void window::initialize(int w, int h, const std::string& title, onKey& on_key, o
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	const char* glsl_version = "#version 460";
+	const char* glsl_version = "#version 150";
 	ImGui_ImplGlfw_InitForOpenGL(_window.get(), true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 

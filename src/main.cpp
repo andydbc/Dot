@@ -56,17 +56,31 @@ int main(int argc, char* argv[])
 	auto devices = serial::list_ports();
 	auto options = parse_options(argc, argv);
 
-	dot::hardware hardware = { 14, 28, "" };
-	dot::controller controller;
-	
-	if (!devices.empty())
-		hardware.port = devices[0].port;
+	serial::Serial serial;
 
-	controller.set_hardware(hardware);
+	if(!devices.empty())
+	{
+		std::cout << "Found serial devices:" << std::endl;
+		for (const auto& device : devices)
+		{
+			std::cout << " - " << device.port << " : " << device.description << std::endl;
+		}
+
+		std::cout << "Using port: " << devices[0].port << std::endl;
+		serial.setPort(devices[0].port);
+	}
+	else
+	{
+		std::cout << "No serial devices found." << std::endl;
+	}
+
+
+	dot::controller controller(14, 28);
 
 	auto scriptIt = options.find("-s");
 	if (scriptIt != options.end())
 	{
+		std::cout << "Loading script: " << scriptIt->second << std::endl;
 		auto& scriptPath = scriptIt->second;
 		controller.from_file(scriptPath);
 	}
@@ -82,8 +96,11 @@ int main(int argc, char* argv[])
 	while (window.is_open())
 	{
 		update(controller);
+		
 		window.render();
-		controller.send();
+		if(serial.isOpen())
+			controller.send(serial);
+
 		while (glfwGetTime() < lastTime + timeInterval) { }
 		lastTime += timeInterval;
 	}
