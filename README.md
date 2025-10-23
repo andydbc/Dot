@@ -24,4 +24,4 @@ make
 Links
 ========== 
 
-[Flipping the dots/](https://www.andbc.co/work/flipping_the_dots)
+[Flipping the dots](https://www.andbc.co/work/flipping_the_dots)
